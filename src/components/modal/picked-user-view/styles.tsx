@@ -70,5 +70,5 @@ export {
   PickedUserAvatarInitials,
   PickedUserAvatarImage,
   PickedUserName,
-  BackButton
+  BackButton,
 };
