@@ -60,12 +60,13 @@ export function PickUserModal(props: PickUserModalProps) {
     currentUser?.presenter && !pickedUserWithEntryId,
   );
 
+  const [userId, setUserId] = useState(currentUser?.userId || '');
+
   useEffect(() => {
-    setShowPresenterView(currentUser?.presenter && !pickedUserWithEntryId);
     // Play audio when user is selected
     const isPingSoundEnabled = !isPluginSettingsLoading && pluginSettings?.pingSoundEnabled;
     if (isPingSoundEnabled && pickedUserWithEntryId
-      && pickedUserWithEntryId?.pickedUser?.userId === currentUser?.userId) {
+      && pickedUserWithEntryId?.pickedUser?.userId === userId) {
       const { cdn, basename } = window.meetingClientSettings.public.app;
       const host = cdn + basename;
       const pingSoundUrl: string = pluginSettings?.pingSoundUrl
@@ -74,6 +75,13 @@ export function PickUserModal(props: PickUserModalProps) {
       const audio = new Audio(pingSoundUrl);
       audio.play();
       notifyRandomlyPickedUser(intl.formatMessage(intlMessages.currentUserPicked));
+    }
+  }, [userId, pickedUserWithEntryId]);
+
+  useEffect(() => {
+    setShowPresenterView(currentUser?.presenter && !pickedUserWithEntryId);
+    if (userId === '') {
+      setUserId(currentUser.userId);
     }
   }, [currentUser, pickedUserWithEntryId]);
   return (
