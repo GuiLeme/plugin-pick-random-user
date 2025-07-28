@@ -19,17 +19,36 @@ For more information about the plugin API features, see the documentation (`read
 
 If you have any suggestions, requirements, or questions, don’t hesitate to contact us.
 
-## Necessary configurations
+## Configurations
 
-By default, no ping is sounded for the randomly picked user. To activate this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
+Down below, we list all the possible configurations this plugin supports, and then a brief explanation:
+
+```yaml
+- name: PickRandomUserPlugin
+  settings:
+    pingSoundEnabled: false
+    pingSoundUrl: resources/sounds/doorbell.mp3
+    pickedUserTimeWindow: 30 seconds
+```
+
+| Name                   | Description                          | Default                     |
+|------------------------|--------------------------------------|-----------------------------|
+| `pingSoundEnabled`     | Whether the ping sound is enabled    | `false`                      |
+| `pingSoundUrl`         | URL of the ping sound file           | `resources/sounds/doorbell.mp3` |
+| `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `30`               |
+
+
+### Notification/Ping sound
+
+By default, no ping sound is played for the randomly picked user. To activate this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
 
 So within that file and in `public.plugins` add the following configurations:
 
 ```yaml
 - name: PickRandomUserPlugin
-      settings:
-        pingSoundEnabled: true
-        pingSoundUrl: resources/sounds/doorbell.mp3
+  settings:
+    pingSoundEnabled: true
+    pingSoundUrl: resources/sounds/doorbell.mp3
 ```
 
 The result yaml will look like:

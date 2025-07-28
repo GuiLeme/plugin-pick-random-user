@@ -24,6 +24,8 @@ const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV ===
     },
   } : null;
 
+const PICKED_USER_TIME_WINDOW = 30; // seconds
+
 function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   BbbPluginSdk.initialize(uuid);
   const pluginApi: PluginApi = BbbPluginSdk.getPluginApi(uuid);
@@ -35,6 +37,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const [userFilterViewer, setUserFilterViewer] = useState<boolean>(true);
   const [filterOutPresenter, setFilterOutPresenter] = useState<boolean>(true);
   const [filterOutPickedUsers, setFilterOutPickedUsers] = useState<boolean>(true);
+  const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
 
   const { data: pluginSettings, loading: isPluginSettingsLoading } = pluginApi.usePluginSettings();
 
@@ -43,6 +46,14 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       && pluginSettings
       && pluginSettings.pingSoundEnabled) {
       Notification.requestPermission();
+    }
+    if (!isPluginSettingsLoading
+      && pluginSettings
+      && pluginSettings.pickedUserTimeWindow
+      && typeof pluginSettings.pickedUserTimeWindow === 'number'
+      && !Number.isNaN(pluginSettings.pickedUserTimeWindow)
+    ) {
+      setPickedUserTimeWindow(pluginSettings.pickedUserTimeWindow);
     }
   }, [isPluginSettingsLoading, pluginSettings]);
 
@@ -154,7 +165,15 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
         currentUser?.userId,
         pickedUserToUpdate?.payloadJson.userId,
       );
-      if (!hasCurrentUserSeen && !pickedUserSeenEntries?.loading) {
+      const isPreviousPickInTimeWindow = (
+        (new Date().getTime() - new Date(pickedUserToUpdate.createdAt).getTime()) / 1000
+          <= pickedUserTimeWindow
+      );
+      if (
+        !hasCurrentUserSeen
+        && !pickedUserSeenEntries?.loading
+        && isPreviousPickInTimeWindow
+      ) {
         setShowModal(true);
       }
     } else if (pickedUserFromDataChannel.data
@@ -162,7 +181,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       setPickedUserWithEntryId(null);
       if (currentUser && !currentUser.presenter) setShowModal(false);
     }
-  }, [pickedUserFromDataChannelResponse, pickedUserSeenEntries]);
+  }, [pickedUserFromDataChannelResponse, pickedUserSeenEntries, pickedUserTimeWindow]);
 
   useEffect(() => {
     if (!pickedUserWithEntryId && !currentUser?.presenter) setShowModal(false);
