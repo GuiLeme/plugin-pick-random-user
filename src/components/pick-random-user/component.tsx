@@ -24,7 +24,7 @@ const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV ===
     },
   } : null;
 
-const PICKED_USER_TIME_WINDOW = 30; // seconds
+const PICKED_USER_TIME_WINDOW = 10; // seconds
 
 function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   BbbPluginSdk.initialize(uuid);

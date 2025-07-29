@@ -28,7 +28,7 @@ Down below, we list all the possible configurations this plugin supports, and th
   settings:
     pingSoundEnabled: false
     pingSoundUrl: resources/sounds/doorbell.mp3
-    pickedUserTimeWindow: 30 seconds
+    pickedUserTimeWindow: 10 # seconds
 ```
 
 | Name                   | Description                          | Default                     |
