@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react';
 import { createIntl, createIntlCache } from 'react-intl';
 
 import { BbbPluginSdk, PluginApi, RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
-import hasCurrentUserSeenPickedUser from '../../utils/utils';
+import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
+import {
+  useGetAllSettings,
+  useRequestPermissionForNotification,
+} from './hooks';
 import {
   ModalInformationFromPresenter,
   PickRandomUserPluginProps,
@@ -24,8 +28,6 @@ const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV ===
     },
   } : null;
 
-const PICKED_USER_TIME_WINDOW = 10; // seconds
-
 function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   BbbPluginSdk.initialize(uuid);
   const pluginApi: PluginApi = BbbPluginSdk.getPluginApi(uuid);
@@ -37,25 +39,12 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const [userFilterViewer, setUserFilterViewer] = useState<boolean>(true);
   const [filterOutPresenter, setFilterOutPresenter] = useState<boolean>(true);
   const [filterOutPickedUsers, setFilterOutPickedUsers] = useState<boolean>(true);
-  const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
 
-  const { data: pluginSettings, loading: isPluginSettingsLoading } = pluginApi.usePluginSettings();
+  const settingsResponseData = pluginApi.usePluginSettings();
+  const pickRandomUserSettings = useGetAllSettings(settingsResponseData);
+  const { pickedUserTimeWindow, pingSoundEnabled } = pickRandomUserSettings;
 
-  useEffect(() => {
-    if (!isPluginSettingsLoading
-      && pluginSettings
-      && pluginSettings.pingSoundEnabled) {
-      Notification.requestPermission();
-    }
-    if (!isPluginSettingsLoading
-      && pluginSettings
-      && pluginSettings.pickedUserTimeWindow
-      && typeof pluginSettings.pickedUserTimeWindow === 'number'
-      && !Number.isNaN(pluginSettings.pickedUserTimeWindow)
-    ) {
-      setPickedUserTimeWindow(pluginSettings.pickedUserTimeWindow);
-    }
-  }, [isPluginSettingsLoading, pluginSettings]);
+  useRequestPermissionForNotification(pingSoundEnabled);
 
   const currentUserInfo = pluginApi.useCurrentUser();
   const shouldUnmountPlugin = pluginApi.useShouldUnmountPlugin();
@@ -195,8 +184,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
     <>
       <PickUserModal
         {...{
-          pluginSettings,
-          isPluginSettingsLoading,
+          pickRandomUserSettings,
           intl,
           showModal,
           handleCloseModal,

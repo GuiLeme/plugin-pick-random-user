@@ -1,12 +1,11 @@
-import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { CurrentUserData, DeleteEntryFunction, GraphqlResponseWrapper } from 'bigbluebutton-html-plugin-sdk';
 import { IntlShape } from 'react-intl';
 import { DataChannelEntryResponseType, PushEntryFunction } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { PickedUser, PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../pick-random-user/types';
+import { PickRandomUserSettings } from '../../commons/types';
 
 export interface PickUserModalProps {
-  pluginSettings: PluginSettingsData;
-  isPluginSettingsLoading: boolean;
+  pickRandomUserSettings: PickRandomUserSettings
   intl: IntlShape
   showModal: boolean;
   handleCloseModal: () => void;

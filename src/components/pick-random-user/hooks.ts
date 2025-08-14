@@ -1,0 +1,70 @@
+import { GraphqlResponseWrapper } from 'bigbluebutton-html-plugin-sdk';
+import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
+import { useEffect, useState } from 'react';
+import PICKED_USER_TIME_WINDOW from '../../commons/constants';
+import { isNumber } from '../../commons/utils';
+import { PickRandomUserSettings } from '../../commons/types';
+import { WindowClientSettings } from '../modal/types';
+
+declare const window: WindowClientSettings;
+
+const useSettingsLoaded = (
+  callback: (settings: PluginSettingsData) => void,
+  settingsData: GraphqlResponseWrapper<PluginSettingsData>,
+) => {
+  const { data: pluginSettings, loading: isPluginSettingsLoading } = settingsData;
+  useEffect(() => {
+    if (!isPluginSettingsLoading && pluginSettings) {
+      callback(pluginSettings);
+    }
+  }, [isPluginSettingsLoading, pluginSettings]);
+};
+
+export const useRequestPermissionForNotification = (
+  pingSoundEnabled: boolean,
+) => {
+  useEffect(() => {
+    if (pingSoundEnabled) {
+      Notification.requestPermission();
+    }
+  }, [pingSoundEnabled]);
+};
+
+export const getPingSoundEnabled = (
+  settings: PluginSettingsData,
+): boolean => !!settings.pingSoundEnabled;
+
+const getPickedUserTimeWindowFromSettings = (settings: PluginSettingsData) => {
+  const settingTimeWindow = settings.pickedUserTimeWindow as unknown;
+  if (isNumber(settingTimeWindow)) {
+    const timeWindow: number = settingTimeWindow as number;
+    return timeWindow;
+  } return PICKED_USER_TIME_WINDOW;
+};
+
+const getPingSoundUrl = (settings: PluginSettingsData): string => {
+  const { cdn, basename } = window.meetingClientSettings.public.app;
+  const host = cdn + basename;
+  const pingSoundUrl: string = settings.pingSoundUrl
+    ? String(settings.pingSoundUrl)
+    : `${host}/resources/sounds/doorbell.mp3`;
+  return pingSoundUrl;
+};
+
+export const useGetAllSettings = (
+  settingsData: GraphqlResponseWrapper<PluginSettingsData>,
+): PickRandomUserSettings => {
+  const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(false);
+  const [pingSoundUrl, setPingSoundUrl] = useState<string>('');
+  const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
+  useSettingsLoaded((settings) => {
+    setPickedUserTimeWindow(getPickedUserTimeWindowFromSettings(settings));
+    setPingSoundEnabled(getPingSoundEnabled(settings));
+    setPingSoundUrl(getPingSoundUrl(settings));
+  }, settingsData);
+  return {
+    pingSoundEnabled,
+    pingSoundUrl,
+    pickedUserTimeWindow,
+  };
+};

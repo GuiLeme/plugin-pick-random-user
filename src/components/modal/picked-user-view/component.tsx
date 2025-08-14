@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { defineMessages } from 'react-intl';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
-import hasCurrentUserSeenPickedUser from '../../../utils/utils';
+import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
 
 const intlMessages = defineMessages({
   currentUserPicked: {

@@ -9,7 +9,7 @@ import { PickedUserSeenEntryDataChannel } from '../components/pick-random-user/t
  * @param pickedUserId userId from the picked user
  * @returns boolean indicating if the current user has seen the picked-user
  */
-const hasCurrentUserSeenPickedUser = (
+export const hasCurrentUserSeenPickedUser = (
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
   currentUserId: string,
@@ -20,4 +20,4 @@ const hasCurrentUserSeenPickedUser = (
     && view.payloadJson.seenByUserId === currentUserId
     && view.payloadJson.pickedUserId === pickedUserId);
 
-export default hasCurrentUserSeenPickedUser;
+export const isNumber = (obj: unknown): boolean => obj && typeof obj && !Number.isNaN(obj);

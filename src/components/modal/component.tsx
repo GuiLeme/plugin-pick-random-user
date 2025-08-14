@@ -6,7 +6,7 @@ import * as Styled from './styles';
 import { PickUserModalProps, WindowClientSettings } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
-import hasCurrentUserSeenPickedUser from '../../utils/utils';
+import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -35,8 +35,7 @@ function notifyRandomlyPickedUser(message: string) {
 
 export function PickUserModal(props: PickUserModalProps) {
   const {
-    pluginSettings,
-    isPluginSettingsLoading,
+    pickRandomUserSettings,
     intl,
     showModal,
     handleCloseModal,
@@ -57,6 +56,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
   } = props;
 
+  const { pingSoundEnabled, pingSoundUrl } = pickRandomUserSettings;
   const [showPresenterView, setShowPresenterView] = useState<boolean>(
     currentUser?.presenter && !pickedUserWithEntryId,
   );
@@ -65,22 +65,15 @@ export function PickUserModal(props: PickUserModalProps) {
 
   useEffect(() => {
     // Play audio when user is selected
-
     const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
       pickedUserSeenEntries,
       userId,
       pickedUserWithEntryId?.pickedUser?.userId,
     );
-    const isPingSoundEnabled = !isPluginSettingsLoading && pluginSettings?.pingSoundEnabled;
-    if (isPingSoundEnabled && pickedUserWithEntryId
+    if (pingSoundEnabled && pickedUserWithEntryId
       && pickedUserWithEntryId?.pickedUser?.userId === userId
       // Current user must not have seen this entry and data should be done loading
       && !hasCurrentUserSeen && !pickedUserSeenEntries?.loading) {
-      const { cdn, basename } = window.meetingClientSettings.public.app;
-      const host = cdn + basename;
-      const pingSoundUrl: string = pluginSettings?.pingSoundUrl
-        ? String(pluginSettings?.pingSoundUrl)
-        : `${host}/resources/sounds/doorbell.mp3`;
       const audio = new Audio(pingSoundUrl);
       audio.play();
       notifyRandomlyPickedUser(intl.formatMessage(intlMessages.currentUserPicked));
