@@ -1,21 +1,22 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createIntl, createIntlCache } from 'react-intl';
 
 import { BbbPluginSdk, PluginApi, RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
 import {
   useGetAllSettings,
+  useGetFilterOptions,
   useRequestPermissionForNotification,
 } from './hooks';
 import {
-  ModalInformationFromPresenter,
   PickRandomUserPluginProps,
   PickedUserSeenEntryDataChannel,
   PickedUser,
   PickedUserWithEntryId,
   UsersMoreInformationGraphqlResponse,
 } from './types';
+import { FilterOptionsContext } from './context';
 import { USERS_MORE_INFORMATION } from './queries';
 import { PickUserModal } from '../modal/component';
 import { Role } from './enums';
@@ -36,9 +37,6 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const [
     pickedUserWithEntryId,
     setPickedUserWithEntryId] = useState<PickedUserWithEntryId | undefined>();
-  const [userFilterViewer, setUserFilterViewer] = useState<boolean>(true);
-  const [filterOutPresenter, setFilterOutPresenter] = useState<boolean>(true);
-  const [filterOutPickedUsers, setFilterOutPickedUsers] = useState<boolean>(true);
 
   const settingsResponseData = pluginApi.usePluginSettings();
   const pickRandomUserSettings = useGetAllSettings(settingsResponseData);
@@ -71,10 +69,13 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
     pushEntry: pushPickedUser,
     deleteEntry: deletePickedUser,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
+
+  const [filterOptions, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter);
   const {
-    data: modalInformationFromPresenter,
-    pushEntry: dispatchModalInformationFromPresenter,
-  } = pluginApi.useDataChannel<ModalInformationFromPresenter>('modalInformationFromPresenter');
+    skipModerators,
+    skipPresenter,
+    includePickedUsers,
+  } = filterOptions;
 
   const {
     data: pickedUserSeenEntries,
@@ -87,23 +88,11 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
     loading: false,
   };
 
-  useEffect(() => {
-    const modalInformationList = modalInformationFromPresenter
-      .data;
-    const modalInformation = modalInformationList
-      ? modalInformationList[modalInformationList.length - 1]?.payloadJson : null;
-    if (modalInformation) {
-      setFilterOutPresenter(modalInformation.skipPresenter);
-      setUserFilterViewer(modalInformation.skipModerators);
-      setFilterOutPickedUsers(!modalInformation.includePickedUsers);
-    }
-  }, [modalInformationFromPresenter]);
-
   const usersToBePicked: UsersMoreInformationGraphqlResponse = {
     user: allUsers?.user.filter((user) => {
       let roleFilter = true;
-      if (userFilterViewer) roleFilter = user.role === Role.VIEWER;
-      if (filterOutPickedUsers && pickedUserFromDataChannel.data) {
+      if (skipModerators) roleFilter = user.role === Role.VIEWER;
+      if (!includePickedUsers && pickedUserFromDataChannel.data) {
         return roleFilter && pickedUserFromDataChannel
           .data.findIndex(
             (u) => u?.payloadJson?.userId === user?.userId,
@@ -111,7 +100,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       }
       return roleFilter;
     }).filter((user) => {
-      if (filterOutPresenter) return !user.presenter;
+      if (skipPresenter) return !user.presenter;
       return true;
     }),
   };
@@ -128,11 +117,6 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
 
   const handleCloseModal = (): void => {
     if (currentUser?.presenter) {
-      dispatchModalInformationFromPresenter({
-        skipModerators: userFilterViewer,
-        skipPresenter: filterOutPresenter,
-        includePickedUsers: !filterOutPickedUsers,
-      });
       pushPickedUser(null);
     }
     setShowModal(false);
@@ -176,35 +160,42 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
     if (!pickedUserWithEntryId && !currentUser?.presenter) setShowModal(false);
   }, [pickedUserWithEntryId]);
 
+  const value = useMemo(
+    () => ({
+      filterOptions,
+      setFilterOptions,
+    }),
+    [filterOptions, setFilterOptions],
+  );
+
   useEffect(() => {
-    if (!currentUser?.presenter && dispatchModalInformationFromPresenter) handleCloseModal();
+    if (!currentUser?.presenter) handleCloseModal();
   }, [currentUser]);
+
   if (!intl || localeMessagesLoading) return null;
+
   return !shouldUnmountPlugin && (
     <>
-      <PickUserModal
-        {...{
-          pickRandomUserSettings,
-          intl,
-          showModal,
-          handleCloseModal,
-          users: usersToBePicked?.user,
-          pickedUserWithEntryId,
-          handlePickRandomUser,
-          currentUser,
-          filterOutPresenter,
-          setFilterOutPresenter,
-          userFilterViewer,
-          setUserFilterViewer,
-          filterOutPickedUsers,
-          setFilterOutPickedUsers,
-          dataChannelPickedUsers: pickedUserFromDataChannel.data,
-          dispatcherPickedUser: pushPickedUser,
-          deletionFunction: deletePickedUser,
-          pickedUserSeenEntries,
-          pushPickedUserSeen,
-        }}
-      />
+      <FilterOptionsContext.Provider
+        value={value}
+      >
+        <PickUserModal
+          {...{
+            pickRandomUserSettings,
+            intl,
+            showModal,
+            handleCloseModal,
+            users: usersToBePicked?.user,
+            pickedUserWithEntryId,
+            handlePickRandomUser,
+            currentUser,
+            dataChannelPickedUsers: pickedUserFromDataChannel.data,
+            deletionFunction: deletePickedUser,
+            pickedUserSeenEntries,
+            pushPickedUserSeen,
+          }}
+        />
+      </FilterOptionsContext.Provider>
       <ActionButtonDropdownManager
         {...{
           intl,

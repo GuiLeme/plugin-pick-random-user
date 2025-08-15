@@ -13,15 +13,8 @@ export interface PickUserModalProps {
   pickedUserWithEntryId: PickedUserWithEntryId;
   handlePickRandomUser: () => void;
   currentUser: CurrentUserData;
-  filterOutPresenter: boolean,
-  setFilterOutPresenter: (filter: boolean) => void,
-  userFilterViewer: boolean;
-  setUserFilterViewer: (filter: boolean) => void;
-  filterOutPickedUsers: boolean,
-  setFilterOutPickedUsers: (filter: boolean) => void,
   dataChannelPickedUsers?: DataChannelEntryResponseType<PickedUser>[];
   deletionFunction: DeleteEntryFunction;
-  dispatcherPickedUser: PushEntryFunction;
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
   pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>;

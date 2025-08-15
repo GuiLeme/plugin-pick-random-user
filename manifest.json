@@ -5,7 +5,7 @@
   "localesBaseUrl": "locales",
   "dataChannels": [
     {
-      "name": "modalInformationFromPresenter",
+      "name": "filterOptions",
       "pushPermission": ["presenter"],
       "replaceOrDeletePermission": ["creator", "moderator"]
     },

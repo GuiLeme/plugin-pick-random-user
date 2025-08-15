@@ -1,12 +1,21 @@
-import { GraphqlResponseWrapper } from 'bigbluebutton-html-plugin-sdk';
+import {
+  DataChannelEntryResponseType,
+  DataChannelTypes,
+  GraphqlResponseWrapper,
+  PluginApi,
+  PushEntryFunction,
+} from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
-import PICKED_USER_TIME_WINDOW from '../../commons/constants';
+import { PICKED_USER_TIME_WINDOW } from '../../commons/constants';
 import { isNumber } from '../../commons/utils';
 import { PickRandomUserSettings } from '../../commons/types';
 import { WindowClientSettings } from '../modal/types';
+import { FilterOptionsType } from './types';
 
 declare const window: WindowClientSettings;
+
+// Settings hooks and utilities
 
 const useSettingsLoaded = (
   callback: (settings: PluginSettingsData) => void,
@@ -67,4 +76,85 @@ export const useGetAllSettings = (
     pingSoundUrl,
     pickedUserTimeWindow,
   };
+};
+
+// Filter Options hooks and utilities
+
+const useUpdateFilterOptionsOnDataChannel = (
+  pushFilterOptionsToDataChannel: PushEntryFunction<FilterOptionsType>,
+  filterOptions: FilterOptionsType,
+  isPresenter: boolean,
+  dataChannelLoading: boolean,
+) => {
+  useEffect(() => {
+    if (isPresenter && !dataChannelLoading) {
+      pushFilterOptionsToDataChannel(filterOptions);
+    }
+  }, [isPresenter, filterOptions, dataChannelLoading]);
+};
+
+const hasFilterOptionsChanged = (
+  currentFilterOptions: FilterOptionsType,
+  filterOptionsFromDataChannel?: FilterOptionsType,
+) => filterOptionsFromDataChannel?.includePickedUsers !== currentFilterOptions.includePickedUsers
+  || filterOptionsFromDataChannel?.skipModerators !== currentFilterOptions.skipModerators
+  || filterOptionsFromDataChannel?.skipPresenter !== currentFilterOptions.skipPresenter;
+
+const useObserveFilterOptionsFromDataChannel = (
+  currentFilterOptions: FilterOptionsType,
+  filterOptionsFromDataChannel: FilterOptionsType | undefined,
+  setFilterOptions: React.Dispatch<React.SetStateAction<FilterOptionsType>>,
+) => {
+  useEffect(() => {
+    if (
+      filterOptionsFromDataChannel
+      && hasFilterOptionsChanged(currentFilterOptions, filterOptionsFromDataChannel)) {
+      setFilterOptions({
+        includePickedUsers: filterOptionsFromDataChannel.includePickedUsers,
+        skipModerators: filterOptionsFromDataChannel.skipModerators,
+        skipPresenter: filterOptionsFromDataChannel.skipPresenter,
+      });
+    }
+  }, [filterOptionsFromDataChannel]);
+};
+
+const getLatestFilterOptionsFromDataChannel = (
+  filterOptionsFromDataChannelResponse: GraphqlResponseWrapper<
+    DataChannelEntryResponseType<FilterOptionsType>[]
+  >,
+) => {
+  const persistedFilterOptionsList = filterOptionsFromDataChannelResponse.data;
+  const currentFilterOptionsFromDataChannel = persistedFilterOptionsList
+    ? persistedFilterOptionsList[0]?.payloadJson : null;
+  return currentFilterOptionsFromDataChannel;
+};
+
+export const useGetFilterOptions = (
+  pluginApi: PluginApi,
+  currentUserPresenter: boolean,
+): [FilterOptionsType, React.Dispatch<React.SetStateAction<FilterOptionsType>>] => {
+  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
+    skipModerators: true,
+    skipPresenter: true,
+    includePickedUsers: true,
+  });
+  const {
+    data: filterOptionsFromDataChannel,
+    pushEntry: pushFilterOptionsToDataChannel,
+  } = pluginApi.useDataChannel<FilterOptionsType>('filterOptions', DataChannelTypes.LATEST_ITEM);
+  const latestFilterOptionFromDataChannel = getLatestFilterOptionsFromDataChannel(
+    filterOptionsFromDataChannel,
+  );
+  useObserveFilterOptionsFromDataChannel(
+    filterOptions,
+    latestFilterOptionFromDataChannel,
+    setFilterOptions,
+  );
+  useUpdateFilterOptionsOnDataChannel(
+    pushFilterOptionsToDataChannel,
+    filterOptions,
+    currentUserPresenter,
+    filterOptionsFromDataChannel.loading,
+  );
+  return [filterOptions, setFilterOptions];
 };

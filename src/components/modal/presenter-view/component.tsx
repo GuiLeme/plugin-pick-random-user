@@ -2,10 +2,12 @@ import * as React from 'react';
 import { RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { defineMessages } from 'react-intl';
+import { useContext } from 'react';
 
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
+import { FilterOptionsContext } from '../../pick-random-user/context';
 
 const intlMessages = defineMessages({
   optionsTitle: {
@@ -113,12 +115,6 @@ const makeVerticalListOfNames = (
 export function PresenterViewComponent(props: PresenterViewComponentProps) {
   const {
     intl,
-    filterOutPresenter,
-    setFilterOutPresenter,
-    userFilterViewer,
-    setUserFilterViewer,
-    filterOutPickedUsers,
-    setFilterOutPickedUsers,
     deletionFunction,
     handlePickRandomUser,
     dataChannelPickedUsers,
@@ -126,9 +122,20 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     users,
   } = props;
 
+  const {
+    filterOptions,
+    setFilterOptions,
+  } = useContext(FilterOptionsContext);
+
+  const {
+    skipModerators,
+    skipPresenter,
+    includePickedUsers,
+  } = filterOptions;
+
   let userRoleLabel: string;
   const usersCountVariable = { 0: users?.length };
-  if (userFilterViewer) {
+  if (skipModerators) {
     userRoleLabel = (users?.length !== 1)
       ? intl.formatMessage(intlMessages.viewerLabelPlural, usersCountVariable)
       : intl.formatMessage(intlMessages.viewerLabel, usersCountVariable);
@@ -148,9 +155,12 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             <input
               type="checkbox"
               id="skipModerators"
-              checked={userFilterViewer}
+              checked={skipModerators}
               onChange={() => {
-                setUserFilterViewer(!userFilterViewer);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  skipModerators: !filterOptionsPrevious.skipModerators,
+                }));
               }}
               name="options"
               value="skipModerators"
@@ -163,9 +173,12 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             <input
               type="checkbox"
               id="skipPresenter"
-              checked={filterOutPresenter}
+              checked={skipPresenter}
               onChange={() => {
-                setFilterOutPresenter(!filterOutPresenter);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  skipPresenter: !filterOptionsPrevious.skipPresenter,
+                }));
               }}
               name="options"
               value="skipPresenter"
@@ -178,9 +191,12 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             <input
               type="checkbox"
               id="includePickedUsers"
-              checked={!filterOutPickedUsers}
+              checked={includePickedUsers}
               onChange={() => {
-                setFilterOutPickedUsers(!filterOutPickedUsers);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  includePickedUsers: !filterOptionsPrevious.includePickedUsers,
+                }));
               }}
               name="options"
               value="includePickedUsers"

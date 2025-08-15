@@ -43,15 +43,8 @@ export function PickUserModal(props: PickUserModalProps) {
     pickedUserWithEntryId,
     handlePickRandomUser,
     currentUser,
-    filterOutPresenter,
-    setFilterOutPresenter,
-    userFilterViewer,
-    setUserFilterViewer,
-    filterOutPickedUsers,
-    setFilterOutPickedUsers,
     dataChannelPickedUsers,
     deletionFunction,
-    dispatcherPickedUser,
     pickedUserSeenEntries,
     pushPickedUserSeen,
   } = props;
@@ -111,18 +104,11 @@ export function PickUserModal(props: PickUserModalProps) {
             <PresenterViewComponent
               {...{
                 intl,
-                filterOutPresenter,
-                setFilterOutPresenter,
-                userFilterViewer,
-                setUserFilterViewer,
-                filterOutPickedUsers,
-                setFilterOutPickedUsers,
                 deletionFunction,
                 handlePickRandomUser,
                 dataChannelPickedUsers,
                 pickedUserWithEntryId,
                 users,
-                dispatcherPickedUser,
               }}
             />
           ) : (
@@ -135,7 +121,6 @@ export function PickUserModal(props: PickUserModalProps) {
                 currentUser,
                 showModal,
                 setShowPresenterView,
-                dispatcherPickedUser,
               }}
             />
           )
