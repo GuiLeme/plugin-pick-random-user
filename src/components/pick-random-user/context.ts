@@ -8,8 +8,8 @@ interface FilterOptionsContextType {
 
 export const FilterOptionsContext = createContext<FilterOptionsContextType>({
   filterOptions: {
-    skipModerators: true,
-    skipPresenter: true,
+    includeModerators: false,
+    includePresenter: false,
     includePickedUsers: false,
   },
   setFilterOptions: () => {},

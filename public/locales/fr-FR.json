@@ -3,8 +3,6 @@
   "pickRandomUserPlugin.modal.pickedUserView.title.randomUserPicked": "Participant sélectionné au hasard",
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "retour",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Options",
-  "pickRandomUserPlugin.modal.presenterView.optionSection.skipModeratorsLabel": "Ignorer les modérateurs",
-  "pickRandomUserPlugin.modal.presenterView.optionSection.skipPresenterLabel": "Ignorer le présentateur",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Inclure un participant déjà sélectionné",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "Disponible pour la sélection",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "participant",

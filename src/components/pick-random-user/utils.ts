@@ -12,10 +12,10 @@ export const filterPossibleUsersToBePicked = (
   filterOptions: FilterOptionsType,
 ) => ({
   user: allUsers?.user.filter((user) => {
-    if (filterOptions.skipModerators) return user.role === Role.VIEWER;
+    if (!filterOptions.includeModerators) return user.role === Role.VIEWER;
     return true;
   }).filter((user) => {
-    if (filterOptions.skipPresenter) return !user.presenter;
+    if (!filterOptions.includePresenter) return !user.presenter;
     return true;
   }).filter((user) => {
     if (!filterOptions.includePickedUsers && pickedUserFromDataChannel) {

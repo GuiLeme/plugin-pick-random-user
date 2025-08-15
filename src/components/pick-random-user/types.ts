@@ -27,7 +27,7 @@ export interface PickedUserSeenEntryDataChannel {
 }
 
 export interface FilterOptionsType {
-  skipModerators: boolean;
-  skipPresenter: boolean;
+  includeModerators: boolean;
+  includePresenter: boolean;
   includePickedUsers: boolean;
 }

@@ -103,8 +103,8 @@ const hasFilterOptionsChanged = (
   currentFilterOptions: FilterOptionsType,
   filterOptionsFromDataChannel?: FilterOptionsType,
 ) => filterOptionsFromDataChannel?.includePickedUsers !== currentFilterOptions.includePickedUsers
-  || filterOptionsFromDataChannel?.skipModerators !== currentFilterOptions.skipModerators
-  || filterOptionsFromDataChannel?.skipPresenter !== currentFilterOptions.skipPresenter;
+  || filterOptionsFromDataChannel?.includeModerators !== currentFilterOptions.includeModerators
+  || filterOptionsFromDataChannel?.includePresenter !== currentFilterOptions.includePresenter;
 
 const useObserveFilterOptionsFromDataChannel = (
   currentFilterOptions: FilterOptionsType,
@@ -117,8 +117,8 @@ const useObserveFilterOptionsFromDataChannel = (
       && hasFilterOptionsChanged(currentFilterOptions, filterOptionsFromDataChannel)) {
       setFilterOptions({
         includePickedUsers: filterOptionsFromDataChannel.includePickedUsers,
-        skipModerators: filterOptionsFromDataChannel.skipModerators,
-        skipPresenter: filterOptionsFromDataChannel.skipPresenter,
+        includeModerators: filterOptionsFromDataChannel.includeModerators,
+        includePresenter: filterOptionsFromDataChannel.includePresenter,
       });
     }
   }, [filterOptionsFromDataChannel]);
@@ -140,8 +140,8 @@ export const useGetFilterOptions = (
   currentUserPresenter: boolean,
 ): [FilterOptionsType, React.Dispatch<React.SetStateAction<FilterOptionsType>>] => {
   const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
-    skipModerators: true,
-    skipPresenter: true,
+    includeModerators: false,
+    includePresenter: false,
     includePickedUsers: false,
   });
   const {

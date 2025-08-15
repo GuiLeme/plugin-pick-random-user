@@ -4,8 +4,6 @@
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "zurück",
   "pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText": "Avatar von Teilnehmer {0}",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Optionen",
-  "pickRandomUserPlugin.modal.presenterView.optionSection.skipModeratorsLabel": "Überspringe Moderatoren",
-  "pickRandomUserPlugin.modal.presenterView.optionSection.skipPresenterLabel": "Überspringe Präsentator",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Wähle bereits gewählte Teilnehmer",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "Zur Auswahl stehen",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "Teilnehmer",
