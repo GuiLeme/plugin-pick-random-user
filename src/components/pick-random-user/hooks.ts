@@ -36,18 +36,33 @@ const useSettingsLoaded = (
 };
 
 export const useRequestPermissionForNotification = (
-  pingSoundEnabled: boolean,
+  browserNotificationEnabled: boolean,
 ) => {
   useEffect(() => {
-    if (pingSoundEnabled) {
+    if (browserNotificationEnabled) {
       Notification.requestPermission();
     }
-  }, [pingSoundEnabled]);
+  }, [browserNotificationEnabled]);
 };
 
 export const getPingSoundEnabled = (
   settings: PluginSettingsData,
-): boolean => !!settings.pingSoundEnabled;
+  previousState: boolean,
+): boolean => {
+  if (settings.pingSoundEnabled === undefined || settings.pingSoundEnabled === null) {
+    return previousState;
+  } return !!settings.pingSoundEnabled;
+};
+
+export const getBrowserNotificationEnabled = (
+  settings: PluginSettingsData,
+  previousState: boolean,
+): boolean => {
+  if (settings.browserNotificationEnabled === undefined
+    || settings.browserNotificationEnabled === null) {
+    return previousState;
+  } return !!settings.browserNotificationEnabled;
+};
 
 const getPickedUserTimeWindowFromSettings = (settings: PluginSettingsData) => {
   const settingTimeWindow = settings.pickedUserTimeWindow as unknown;
@@ -69,17 +84,24 @@ const getPingSoundUrl = (settings: PluginSettingsData): string => {
 export const useGetAllSettings = (
   settingsData: GraphqlResponseWrapper<PluginSettingsData>,
 ): PickRandomUserSettings => {
-  const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(false);
+  const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(true);
+  const [browserNotificationEnabled, setBrowserNotificationEnabled] = useState<boolean>(false);
   const [pingSoundUrl, setPingSoundUrl] = useState<string>('');
   const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
   useSettingsLoaded((settings) => {
+    setBrowserNotificationEnabled(
+      (previousState) => getBrowserNotificationEnabled(settings, previousState),
+    );
+    setPingSoundEnabled(
+      (previousState) => getPingSoundEnabled(settings, previousState),
+    );
     setPickedUserTimeWindow(getPickedUserTimeWindowFromSettings(settings));
-    setPingSoundEnabled(getPingSoundEnabled(settings));
     setPingSoundUrl(getPingSoundUrl(settings));
   }, settingsData);
   return {
     pingSoundEnabled,
     pingSoundUrl,
+    browserNotificationEnabled,
     pickedUserTimeWindow,
   };
 };

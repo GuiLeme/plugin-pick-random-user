@@ -6,7 +6,7 @@ import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
 import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
-import { notifyRandomlyPickedUser } from './utils';
+import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -32,7 +32,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
   } = props;
 
-  const { pingSoundEnabled, pingSoundUrl } = pickRandomUserSettings;
+  const { pingSoundEnabled, pingSoundUrl, browserNotificationEnabled } = pickRandomUserSettings;
   const [showPresenterView, setShowPresenterView] = useState<boolean>(
     currentUser?.presenter && !currentPickedUser,
   );
@@ -46,13 +46,16 @@ export function PickUserModal(props: PickUserModalProps) {
       userId,
       currentPickedUser?.pickedUser?.userId,
     );
-    if (pingSoundEnabled && currentPickedUser
+    if (currentPickedUser
       && currentPickedUser?.pickedUser?.userId === userId
       // Current user must not have seen this entry and data should be done loading
       && !hasCurrentUserSeen && !pickedUserSeenEntries?.loading) {
-      const audio = new Audio(pingSoundUrl);
-      audio.play();
-      notifyRandomlyPickedUser(intl.formatMessage(intlMessages.currentUserPicked));
+      if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
+      if (browserNotificationEnabled) {
+        notifyRandomlyPickedUser(
+          intl.formatMessage(intlMessages.currentUserPicked),
+        );
+      }
     }
   }, [userId, currentPickedUser, pickedUserSeenEntries]);
 

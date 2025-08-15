@@ -26,29 +26,43 @@ Down below, we list all the possible configurations this plugin supports, and th
 ```yaml
 - name: PickRandomUserPlugin
   settings:
-    pingSoundEnabled: false
+    pingSoundEnabled: true
     pingSoundUrl: resources/sounds/doorbell.mp3
+    browserNotificationEnabled: true
     pickedUserTimeWindow: 10 # seconds
 ```
 
 | Name                   | Description                          | Default                     |
 |------------------------|--------------------------------------|-----------------------------|
-| `pingSoundEnabled`     | Whether the ping sound is enabled    | `false`                      |
+| `pingSoundEnabled`     | Flag that decides whether the ping sound is enabled for picked user    | `true`                      |
 | `pingSoundUrl`         | URL of the ping sound file           | `resources/sounds/doorbell.mp3` |
+| `browserNotificationEnabled` | Flag that decides whether to send browser notification when user is picked | `false` |
 | `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `30`               |
 
 
-### Notification/Ping sound
+### Notification
 
-By default, no ping sound is played for the randomly picked user. To activate this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
+By default, browser notification when user is randomly picked is not enabled. To enable it, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+
+```yaml
+public:
+  # ...
+  plugins:
+    - name: PickRandomUserPlugin 
+      settings:
+        browserNotificationEnabled: false
+```
+
+### Ping sound
+
+By default, ping sound is played for the randomly picked user. To remove this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
 
 So within that file and in `public.plugins` add the following configurations:
 
 ```yaml
 - name: PickRandomUserPlugin
   settings:
-    pingSoundEnabled: true
-    pingSoundUrl: resources/sounds/doorbell.mp3
+    pingSoundEnabled: false
 ```
 
 The result yaml will look like:
@@ -59,8 +73,7 @@ public:
   plugins:
     - name: PickRandomUserPlugin 
       settings:
-        pingSoundEnabled: true # Enables the ping sound for this plugin true/false
-        pingSoundUrl: resources/sounds/doorbell.mp3 # This is the default and is not mandatory
+        pingSoundEnabled: false
 ```
 
 Just a minor comment: This relative URLs can only be configured if the server on which BBB is running is not a cluster setup. If that's your case, you'll need to put the whole URL into the configuration. It's also worth mentioning that the default `pingSoundUrl` will work in cluser setups, so no worries on that.
