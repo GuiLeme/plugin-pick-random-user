@@ -10,7 +10,7 @@ export const FilterOptionsContext = createContext<FilterOptionsContextType>({
   filterOptions: {
     skipModerators: true,
     skipPresenter: true,
-    includePickedUsers: true,
+    includePickedUsers: false,
   },
   setFilterOptions: () => {},
 });

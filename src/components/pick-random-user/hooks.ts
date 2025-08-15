@@ -142,7 +142,7 @@ export const useGetFilterOptions = (
   const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
     skipModerators: true,
     skipPresenter: true,
-    includePickedUsers: true,
+    includePickedUsers: false,
   });
   const {
     data: filterOptionsFromDataChannel,
