@@ -10,7 +10,7 @@ export interface PickUserModalProps {
   showModal: boolean;
   handleCloseModal: () => void;
   users?: PickedUser[];
-  pickedUserWithEntryId: PickedUserWithEntryId;
+  currentPickedUser: PickedUserWithEntryId;
   handlePickRandomUser: () => void;
   currentUser: CurrentUserData;
   dataChannelPickedUsers?: DataChannelEntryResponseType<PickedUser>[];

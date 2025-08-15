@@ -1,4 +1,5 @@
 import {
+  CurrentUserData,
   DataChannelEntryResponseType,
   DataChannelTypes,
   GraphqlResponseWrapper,
@@ -8,10 +9,15 @@ import {
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
 import { PICKED_USER_TIME_WINDOW } from '../../commons/constants';
-import { isNumber } from '../../commons/utils';
+import { hasCurrentUserSeenPickedUser, isNumber } from '../../commons/utils';
 import { PickRandomUserSettings } from '../../commons/types';
 import { WindowClientSettings } from '../modal/types';
-import { FilterOptionsType } from './types';
+import {
+  FilterOptionsType,
+  PickedUser,
+  PickedUserSeenEntryDataChannel,
+  PickedUserWithEntryId,
+} from './types';
 
 declare const window: WindowClientSettings;
 
@@ -157,4 +163,81 @@ export const useGetFilterOptions = (
     filterOptionsFromDataChannel.loading,
   );
   return [filterOptions, setFilterOptions];
+};
+
+// ---
+
+export const useGetCurrentPickedUser = (
+  pickedUserFromDataChannel: DataChannelEntryResponseType<PickedUser>[],
+): PickedUserWithEntryId | undefined => {
+  const [
+    pickedUserWithEntryId,
+    setPickedUserWithEntryId] = useState<PickedUserWithEntryId | undefined>();
+
+  useEffect(() => {
+    if (pickedUserFromDataChannel
+      && pickedUserFromDataChannel?.length > 0) {
+      const pickedUserToUpdate = pickedUserFromDataChannel[0];
+      if (pickedUserToUpdate?.entryId !== pickedUserWithEntryId?.entryId) {
+        setPickedUserWithEntryId({
+          pickedUser: pickedUserToUpdate?.payloadJson,
+          entryId: pickedUserToUpdate.entryId,
+        });
+      }
+    } else if (pickedUserFromDataChannel
+        && pickedUserFromDataChannel?.length === 0) {
+      setPickedUserWithEntryId(null);
+    }
+  }, [pickedUserFromDataChannel]);
+  return pickedUserWithEntryId;
+};
+
+export const useControlModalState = (
+  pickedUserFromDataChannel: DataChannelEntryResponseType<PickedUser>[],
+  pickedUserSeenEntries: GraphqlResponseWrapper<
+    DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
+  currentUser: CurrentUserData,
+  pickedUserTimeWindow: number,
+  currentPickedUser: PickedUserWithEntryId,
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
+  const hasValidPickInTimeWindow = (pickedUser?: DataChannelEntryResponseType<PickedUser>) => {
+    if (!pickedUser) return false;
+    const secondsSincePick = (Date.now() - new Date(pickedUser.createdAt).getTime()) / 1000;
+    return secondsSincePick <= pickedUserTimeWindow;
+  };
+
+  const hasUserSeenPickedUser = (pickedUser?: DataChannelEntryResponseType<PickedUser>) => {
+    if (!pickedUser) return false;
+    return hasCurrentUserSeenPickedUser(
+      pickedUserSeenEntries,
+      currentUser?.userId,
+      pickedUser.payloadJson.userId,
+    );
+  };
+
+  const shouldShowModal = (pickedUser?: DataChannelEntryResponseType<PickedUser>) => {
+    if (!pickedUser) return false;
+    return (
+      !hasUserSeenPickedUser(pickedUser)
+      && !pickedUserSeenEntries?.loading
+      && hasValidPickInTimeWindow(pickedUser)
+    );
+  };
+
+  useEffect(() => {
+    const firstPick = pickedUserFromDataChannel?.[0];
+
+    if (firstPick && shouldShowModal(firstPick)) {
+      setShowModal(true);
+      return;
+    }
+
+    const shouldCloseModal = (!firstPick && !currentUser?.presenter)
+      || (!currentPickedUser && !currentUser?.presenter);
+
+    if (shouldCloseModal) {
+      setShowModal(false);
+    }
+  }, [currentPickedUser, pickedUserFromDataChannel, pickedUserSeenEntries, pickedUserTimeWindow]);
 };
