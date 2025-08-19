@@ -21,7 +21,7 @@ const intlMessages = defineMessages({
 function ActionButtonDropdownManager(props: ActionButtonDropdownManagerProps): React.ReactNode {
   const {
     intl,
-    pickedUserWithEntryId,
+    currentPickedUser,
     currentUser,
     pluginApi,
     setShowModal,
@@ -42,7 +42,7 @@ function ActionButtonDropdownManager(props: ActionButtonDropdownManagerProps): R
           },
         }),
       ]);
-    } else if (!currentUser?.presenter && pickedUserWithEntryId) {
+    } else if (!currentUser?.presenter && currentPickedUser) {
       pluginApi.setActionButtonDropdownItems([
         new ActionButtonDropdownSeparator(),
         new ActionButtonDropdownOption({
@@ -58,7 +58,7 @@ function ActionButtonDropdownManager(props: ActionButtonDropdownManagerProps): R
     } else {
       pluginApi.setActionButtonDropdownItems([]);
     }
-  }, [currentUserInfo, pickedUserWithEntryId, intl]);
+  }, [currentUserInfo, currentPickedUser, intl]);
   return null;
 }
 

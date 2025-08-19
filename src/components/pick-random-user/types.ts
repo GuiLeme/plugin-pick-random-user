@@ -21,13 +21,13 @@ export interface UsersMoreInformationGraphqlResponse {
     user: PickedUser[];
 }
 
-export interface ModalInformationFromPresenter {
-    skipModerators: boolean;
-    skipPresenter: boolean;
-    includePickedUsers: boolean;
-}
-
 export interface PickedUserSeenEntryDataChannel {
     pickedUserId: string;
     seenByUserId: string;
+}
+
+export interface FilterOptionsType {
+  includeModerators: boolean;
+  includePresenter: boolean;
+  includePickedUsers: boolean;
 }

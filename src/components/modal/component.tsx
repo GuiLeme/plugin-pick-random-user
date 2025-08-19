@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 import { defineMessages } from 'react-intl';
-import { pluginLogger } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
-import { PickUserModalProps, WindowClientSettings } from './types';
+import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
-import hasCurrentUserSeenPickedUser from '../../utils/utils';
+import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
+import { notifyRandomlyPickedUser } from './utils';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -16,83 +16,52 @@ const intlMessages = defineMessages({
   },
 });
 
-const TIMEOUT_CLOSE_NOTIFICATION = 5000;
-
-declare const window: WindowClientSettings;
-
-function notifyRandomlyPickedUser(message: string) {
-  if (!('Notification' in window)) {
-    pluginLogger.warn('This browser does not support notifications');
-  } else if (Notification.permission === 'granted') {
-    const notification = new Notification(message);
-    setTimeout(() => {
-      notification.close();
-    }, TIMEOUT_CLOSE_NOTIFICATION);
-  } else if (Notification.permission !== 'denied') {
-    pluginLogger.warn('Browser notification permission has been denied');
-  }
-}
-
 export function PickUserModal(props: PickUserModalProps) {
   const {
-    pluginSettings,
-    isPluginSettingsLoading,
+    pickRandomUserSettings,
     intl,
     showModal,
     handleCloseModal,
     users,
-    pickedUserWithEntryId,
+    currentPickedUser,
     handlePickRandomUser,
     currentUser,
-    filterOutPresenter,
-    setFilterOutPresenter,
-    userFilterViewer,
-    setUserFilterViewer,
-    filterOutPickedUsers,
-    setFilterOutPickedUsers,
     dataChannelPickedUsers,
     deletionFunction,
-    dispatcherPickedUser,
     pickedUserSeenEntries,
     pushPickedUserSeen,
   } = props;
 
+  const { pingSoundEnabled, pingSoundUrl } = pickRandomUserSettings;
   const [showPresenterView, setShowPresenterView] = useState<boolean>(
-    currentUser?.presenter && !pickedUserWithEntryId,
+    currentUser?.presenter && !currentPickedUser,
   );
 
   const [userId, setUserId] = useState(currentUser?.userId || '');
 
   useEffect(() => {
     // Play audio when user is selected
-
     const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
       pickedUserSeenEntries,
       userId,
-      pickedUserWithEntryId?.pickedUser?.userId,
+      currentPickedUser?.pickedUser?.userId,
     );
-    const isPingSoundEnabled = !isPluginSettingsLoading && pluginSettings?.pingSoundEnabled;
-    if (isPingSoundEnabled && pickedUserWithEntryId
-      && pickedUserWithEntryId?.pickedUser?.userId === userId
+    if (pingSoundEnabled && currentPickedUser
+      && currentPickedUser?.pickedUser?.userId === userId
       // Current user must not have seen this entry and data should be done loading
       && !hasCurrentUserSeen && !pickedUserSeenEntries?.loading) {
-      const { cdn, basename } = window.meetingClientSettings.public.app;
-      const host = cdn + basename;
-      const pingSoundUrl: string = pluginSettings?.pingSoundUrl
-        ? String(pluginSettings?.pingSoundUrl)
-        : `${host}/resources/sounds/doorbell.mp3`;
       const audio = new Audio(pingSoundUrl);
       audio.play();
       notifyRandomlyPickedUser(intl.formatMessage(intlMessages.currentUserPicked));
     }
-  }, [userId, pickedUserWithEntryId, pickedUserSeenEntries]);
+  }, [userId, currentPickedUser, pickedUserSeenEntries]);
 
   useEffect(() => {
-    setShowPresenterView(currentUser?.presenter && !pickedUserWithEntryId);
+    setShowPresenterView(currentUser?.presenter && !currentPickedUser);
     if (userId === '') {
       setUserId(currentUser.userId);
     }
-  }, [currentUser, pickedUserWithEntryId]);
+  }, [currentUser, currentPickedUser]);
   return (
     <Styled.PluginModal
       overlayClassName="modalOverlay"
@@ -118,18 +87,11 @@ export function PickUserModal(props: PickUserModalProps) {
             <PresenterViewComponent
               {...{
                 intl,
-                filterOutPresenter,
-                setFilterOutPresenter,
-                userFilterViewer,
-                setUserFilterViewer,
-                filterOutPickedUsers,
-                setFilterOutPickedUsers,
                 deletionFunction,
                 handlePickRandomUser,
                 dataChannelPickedUsers,
-                pickedUserWithEntryId,
+                pickedUserWithEntryId: currentPickedUser,
                 users,
-                dispatcherPickedUser,
               }}
             />
           ) : (
@@ -137,12 +99,11 @@ export function PickUserModal(props: PickUserModalProps) {
               {...{
                 pickedUserSeenEntries,
                 pushPickedUserSeen,
-                pickedUserWithEntryId,
+                pickedUserWithEntryId: currentPickedUser,
                 intl,
                 currentUser,
                 showModal,
                 setShowPresenterView,
-                dispatcherPickedUser,
               }}
             />
           )

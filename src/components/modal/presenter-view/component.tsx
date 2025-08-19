@@ -2,10 +2,12 @@ import * as React from 'react';
 import { RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { defineMessages } from 'react-intl';
+import { useContext } from 'react';
 
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
+import { FilterOptionsContext } from '../../pick-random-user/context';
 
 const intlMessages = defineMessages({
   optionsTitle: {
@@ -13,13 +15,13 @@ const intlMessages = defineMessages({
     description: 'Title of the options section on modal`s presenter view',
     defaultMessage: 'Options',
   },
-  skipModeratorsLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.skipModeratorsLabel',
-    description: 'Label of skip moderator`s option on modal`s presenter view',
-    defaultMessage: 'Skip moderators',
+  includeModeratorsLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel',
+    description: 'Label to include moderator`s option on modal`s presenter view',
+    defaultMessage: 'Include moderators',
   },
-  skipPresenterLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.skipPresenterLabel',
+  includePresenterLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel',
     description: 'Label of skip presenter`s option on modal`s presenter view',
     defaultMessage: 'Skip presenter',
   },
@@ -113,12 +115,6 @@ const makeVerticalListOfNames = (
 export function PresenterViewComponent(props: PresenterViewComponentProps) {
   const {
     intl,
-    filterOutPresenter,
-    setFilterOutPresenter,
-    userFilterViewer,
-    setUserFilterViewer,
-    filterOutPickedUsers,
-    setFilterOutPickedUsers,
     deletionFunction,
     handlePickRandomUser,
     dataChannelPickedUsers,
@@ -126,9 +122,20 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     users,
   } = props;
 
+  const {
+    filterOptions,
+    setFilterOptions,
+  } = useContext(FilterOptionsContext);
+
+  const {
+    includeModerators,
+    includePresenter,
+    includePickedUsers,
+  } = filterOptions;
+
   let userRoleLabel: string;
   const usersCountVariable = { 0: users?.length };
-  if (userFilterViewer) {
+  if (!includeModerators) {
     userRoleLabel = (users?.length !== 1)
       ? intl.formatMessage(intlMessages.viewerLabelPlural, usersCountVariable)
       : intl.formatMessage(intlMessages.viewerLabel, usersCountVariable);
@@ -144,43 +151,52 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
           {intl.formatMessage(intlMessages.optionsTitle)}
         </Styled.PresenterViewSectionTitle>
         <Styled.PresenterViewSectionContent>
-          <Styled.CheckboxLabelWrapper htmlFor="skipModerators">
+          <Styled.CheckboxLabelWrapper htmlFor="includeModerators">
             <input
               type="checkbox"
-              id="skipModerators"
-              checked={userFilterViewer}
+              id="includeModerators"
+              checked={includeModerators}
               onChange={() => {
-                setUserFilterViewer(!userFilterViewer);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  includeModerators: !filterOptionsPrevious.includeModerators,
+                }));
               }}
               name="options"
-              value="skipModerators"
+              value="includeModerators"
             />
             <Styled.CheckboxLabel>
-              {intl.formatMessage(intlMessages.skipModeratorsLabel)}
+              {intl.formatMessage(intlMessages.includeModeratorsLabel)}
             </Styled.CheckboxLabel>
           </Styled.CheckboxLabelWrapper>
-          <Styled.CheckboxLabelWrapper htmlFor="skipPresenter">
+          <Styled.CheckboxLabelWrapper htmlFor="includePresenter">
             <input
               type="checkbox"
-              id="skipPresenter"
-              checked={filterOutPresenter}
+              id="includePresenter"
+              checked={includePresenter}
               onChange={() => {
-                setFilterOutPresenter(!filterOutPresenter);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  includePresenter: !filterOptionsPrevious.includePresenter,
+                }));
               }}
               name="options"
-              value="skipPresenter"
+              value="includePresenter"
             />
             <Styled.CheckboxLabel>
-              {intl.formatMessage(intlMessages.skipPresenterLabel)}
+              {intl.formatMessage(intlMessages.includePresenterLabel)}
             </Styled.CheckboxLabel>
           </Styled.CheckboxLabelWrapper>
           <Styled.CheckboxLabelWrapper htmlFor="includePickedUsers">
             <input
               type="checkbox"
               id="includePickedUsers"
-              checked={!filterOutPickedUsers}
+              checked={includePickedUsers}
               onChange={() => {
-                setFilterOutPickedUsers(!filterOutPickedUsers);
+                setFilterOptions((filterOptionsPrevious) => ({
+                  ...filterOptionsPrevious,
+                  includePickedUsers: !filterOptionsPrevious.includePickedUsers,
+                }));
               }}
               name="options"
               value="includePickedUsers"
