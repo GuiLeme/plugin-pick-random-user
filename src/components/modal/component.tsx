@@ -5,8 +5,7 @@ import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
-import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
-import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
+import { useHandleCurrentUserNotification } from './hooks';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -32,38 +31,20 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
   } = props;
 
-  const { pingSoundEnabled, pingSoundUrl, browserNotificationEnabled } = pickRandomUserSettings;
   const [showPresenterView, setShowPresenterView] = useState<boolean>(
     currentUser?.presenter && !currentPickedUser,
   );
 
-  const [userId, setUserId] = useState(currentUser?.userId || '');
-
-  useEffect(() => {
-    // Play audio when user is selected
-    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
-      pickedUserSeenEntries,
-      userId,
-      currentPickedUser?.pickedUser?.userId,
-    );
-    if (currentPickedUser
-      && currentPickedUser?.pickedUser?.userId === userId
-      // Current user must not have seen this entry and data should be done loading
-      && !hasCurrentUserSeen && !pickedUserSeenEntries?.loading) {
-      if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
-      if (browserNotificationEnabled) {
-        notifyRandomlyPickedUser(
-          intl.formatMessage(intlMessages.currentUserPicked),
-        );
-      }
-    }
-  }, [userId, currentPickedUser, pickedUserSeenEntries]);
+  useHandleCurrentUserNotification(
+    currentUser,
+    pickedUserSeenEntries,
+    currentPickedUser,
+    pickRandomUserSettings,
+    intl.formatMessage(intlMessages.currentUserPicked),
+  );
 
   useEffect(() => {
     setShowPresenterView(currentUser?.presenter && !currentPickedUser);
-    if (userId === '') {
-      setUserId(currentUser.userId);
-    }
   }, [currentUser, currentPickedUser]);
   return (
     <Styled.PluginModal

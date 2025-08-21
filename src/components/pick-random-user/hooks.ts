@@ -8,7 +8,7 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
-import { PICKED_USER_TIME_WINDOW } from '../../commons/constants';
+import { DEFAULT_PING_SOUND_URL, PICKED_USER_TIME_WINDOW } from '../../commons/constants';
 import { hasCurrentUserSeenPickedUser, isNumber } from '../../commons/utils';
 import { PickRandomUserSettings } from '../../commons/types';
 import { WindowClientSettings } from '../modal/types';
@@ -77,7 +77,7 @@ const getPingSoundUrl = (settings: PluginSettingsData): string => {
   const host = cdn + basename;
   const pingSoundUrl: string = settings.pingSoundUrl
     ? String(settings.pingSoundUrl)
-    : `${host}/resources/sounds/doorbell.mp3`;
+    : `${host}/${DEFAULT_PING_SOUND_URL}`;
   return pingSoundUrl;
 };
 
@@ -86,7 +86,7 @@ export const useGetAllSettings = (
 ): PickRandomUserSettings => {
   const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(true);
   const [browserNotificationEnabled, setBrowserNotificationEnabled] = useState<boolean>(false);
-  const [pingSoundUrl, setPingSoundUrl] = useState<string>('');
+  const [pingSoundUrl, setPingSoundUrl] = useState<string>(DEFAULT_PING_SOUND_URL);
   const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
   useSettingsLoaded((settings) => {
     setBrowserNotificationEnabled(
