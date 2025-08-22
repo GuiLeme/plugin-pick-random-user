@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
-import { defineMessages } from 'react-intl';
+import { defineMessages, IntlShape } from 'react-intl';
 import { useContext } from 'react';
 
 import * as Styled from './styles';
@@ -80,17 +80,36 @@ const intlMessages = defineMessages({
     description: 'Label of the button to pick another user',
     defaultMessage: 'Pick again',
   },
+  namesListEnding: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.namesListEnding',
+    description: 'End of horizontal list of available users to be picked (singular)',
+    defaultMessage: 'and {0} other.',
+  },
+  namesListEndingPlural: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.namesListEndingPlural',
+    description: 'End of horizontal list of available users to be picked (plural)',
+    defaultMessage: 'and {0} others.',
+  },
 });
 
 const MAX_NAMES_TO_SHOW = 3;
 
-const makeHorizontalListOfNames = (list?: PickedUser[]) => {
+const makeHorizontalListOfNames = (list?: PickedUser[], intl?: IntlShape) => {
   const length = list?.length;
   const formattedList = list?.filter((_, index) => {
     if (length > MAX_NAMES_TO_SHOW) return index < MAX_NAMES_TO_SHOW;
     return true;
   }).reduce((accumulator, currentValue) => ((accumulator !== '') ? `${accumulator}, ${currentValue.name}` : currentValue.name), '');
-  if (length > MAX_NAMES_TO_SHOW) return `${formattedList}...`;
+  if (length > MAX_NAMES_TO_SHOW) {
+    const remainderUsers = length - MAX_NAMES_TO_SHOW;
+    let message;
+    if (remainderUsers > 1) {
+      message = intl.formatMessage(intlMessages.namesListEndingPlural, { 0: remainderUsers });
+    } else {
+      message = intl.formatMessage(intlMessages.namesListEnding, { 0: remainderUsers });
+    }
+    return `${formattedList} ${message}`;
+  }
   return formattedList;
 };
 
@@ -213,7 +232,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
         </Styled.PresenterViewSectionTitle>
         <Styled.PresenterViewSectionContent>
           {`${users?.length} ${userRoleLabel}: `}
-          {makeHorizontalListOfNames(users)}
+          {makeHorizontalListOfNames(users, intl)}
         </Styled.PresenterViewSectionContent>
       </Styled.PresenterViewSectionWrapper>
       <Styled.PresenterViewSectionWrapper>

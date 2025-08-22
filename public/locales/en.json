@@ -18,5 +18,7 @@
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser": "Pick {0}",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain": "Pick again",
   "pickRandomUserPlugin.actionsButtonDropdown.label.pickUser": "Pick random user",
-  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Display last randomly picked user"
+  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Display last randomly picked user",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.namesListEnding": "and {0} other",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.namesListEndingPlural": "and {0} others"
 }
