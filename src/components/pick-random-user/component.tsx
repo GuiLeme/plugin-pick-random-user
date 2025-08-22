@@ -13,10 +13,8 @@ import {
   PickRandomUserPluginProps,
   PickedUserSeenEntryDataChannel,
   PickedUser,
-  UsersMoreInformationGraphqlResponse,
 } from './types';
 import { FilterOptionsContext } from './context';
-import { USERS_MORE_INFORMATION } from './queries';
 import { PickUserModal } from '../modal/component';
 import ActionButtonDropdownManager from '../extensible-areas/action-button-dropdown/component';
 import { filterPossibleUsersToBePicked } from './utils';
@@ -38,8 +36,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const currentUserInfo = pluginApi.useCurrentUser();
   const shouldUnmountPlugin = pluginApi.useShouldUnmountPlugin();
   const { data: currentUser } = currentUserInfo;
-  const allUsersInfo = pluginApi
-    .useCustomSubscription<UsersMoreInformationGraphqlResponse>(USERS_MORE_INFORMATION);
+  const allUsersInfo = pluginApi.useUsersBasicInfo();
   const { data: allUsers } = allUsersInfo;
 
   const {
