@@ -31,9 +31,9 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const settingsResponseData = pluginApi.usePluginSettings();
 
   const pickRandomUserSettings = useGetAllSettings(settingsResponseData);
-  const { pickedUserTimeWindow, pingSoundEnabled } = pickRandomUserSettings;
+  const { pickedUserTimeWindow, browserNotificationEnabled } = pickRandomUserSettings;
 
-  useRequestPermissionForNotification(pingSoundEnabled);
+  useRequestPermissionForNotification(browserNotificationEnabled);
 
   const currentUserInfo = pluginApi.useCurrentUser();
   const shouldUnmountPlugin = pluginApi.useShouldUnmountPlugin();

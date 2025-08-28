@@ -57,7 +57,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
         seenByUserId: currentUser.userId,
       });
     }
-  }, []);
+  }, [pickedUserWithEntryId]);
   const title = (pickedUserWithEntryId?.pickedUser?.userId === currentUser?.userId)
     ? intl.formatMessage(intlMessages.currentUserPicked)
     : intl.formatMessage(intlMessages.randomUserPicked);

@@ -8,7 +8,7 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
-import { PICKED_USER_TIME_WINDOW } from '../../commons/constants';
+import { DEFAULT_PING_SOUND_URL, PICKED_USER_TIME_WINDOW } from '../../commons/constants';
 import { hasCurrentUserSeenPickedUser, isNumber } from '../../commons/utils';
 import { PickRandomUserSettings } from '../../commons/types';
 import { WindowClientSettings } from '../modal/types';
@@ -36,18 +36,33 @@ const useSettingsLoaded = (
 };
 
 export const useRequestPermissionForNotification = (
-  pingSoundEnabled: boolean,
+  browserNotificationEnabled: boolean,
 ) => {
   useEffect(() => {
-    if (pingSoundEnabled) {
+    if (browserNotificationEnabled) {
       Notification.requestPermission();
     }
-  }, [pingSoundEnabled]);
+  }, [browserNotificationEnabled]);
 };
 
 export const getPingSoundEnabled = (
   settings: PluginSettingsData,
-): boolean => !!settings.pingSoundEnabled;
+  previousState: boolean,
+): boolean => {
+  if (settings.pingSoundEnabled === undefined || settings.pingSoundEnabled === null) {
+    return previousState;
+  } return !!settings.pingSoundEnabled;
+};
+
+export const getBrowserNotificationEnabled = (
+  settings: PluginSettingsData,
+  previousState: boolean,
+): boolean => {
+  if (settings.browserNotificationEnabled === undefined
+    || settings.browserNotificationEnabled === null) {
+    return previousState;
+  } return !!settings.browserNotificationEnabled;
+};
 
 const getPickedUserTimeWindowFromSettings = (settings: PluginSettingsData) => {
   const settingTimeWindow = settings.pickedUserTimeWindow as unknown;
@@ -62,24 +77,31 @@ const getPingSoundUrl = (settings: PluginSettingsData): string => {
   const host = cdn + basename;
   const pingSoundUrl: string = settings.pingSoundUrl
     ? String(settings.pingSoundUrl)
-    : `${host}/resources/sounds/doorbell.mp3`;
+    : `${host}/${DEFAULT_PING_SOUND_URL}`;
   return pingSoundUrl;
 };
 
 export const useGetAllSettings = (
   settingsData: GraphqlResponseWrapper<PluginSettingsData>,
 ): PickRandomUserSettings => {
-  const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(false);
-  const [pingSoundUrl, setPingSoundUrl] = useState<string>('');
+  const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(true);
+  const [browserNotificationEnabled, setBrowserNotificationEnabled] = useState<boolean>(false);
+  const [pingSoundUrl, setPingSoundUrl] = useState<string>(DEFAULT_PING_SOUND_URL);
   const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
   useSettingsLoaded((settings) => {
+    setBrowserNotificationEnabled(
+      (previousState) => getBrowserNotificationEnabled(settings, previousState),
+    );
+    setPingSoundEnabled(
+      (previousState) => getPingSoundEnabled(settings, previousState),
+    );
     setPickedUserTimeWindow(getPickedUserTimeWindowFromSettings(settings));
-    setPingSoundEnabled(getPingSoundEnabled(settings));
     setPingSoundUrl(getPingSoundUrl(settings));
   }, settingsData);
   return {
     pingSoundEnabled,
     pingSoundUrl,
+    browserNotificationEnabled,
     pickedUserTimeWindow,
   };
 };

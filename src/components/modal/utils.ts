@@ -17,3 +17,8 @@ export function notifyRandomlyPickedUser(message: string) {
     pluginLogger.warn('Browser notification permission has been denied');
   }
 }
+
+export function pingSoundForRandomlyPickedUser(pingSoundUrl: string) {
+  const audio = new Audio(pingSoundUrl);
+  audio.play();
+}
