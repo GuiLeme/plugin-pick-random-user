@@ -46,9 +46,14 @@ export function PickUserModal(props: PickUserModalProps) {
   useEffect(() => {
     setShowPresenterView(currentUser?.presenter && !currentPickedUser);
   }, [currentUser, currentPickedUser]);
+
+  if (!showModal) return null;
+
   return (
     <Styled.PluginModal
       overlayClassName="modalOverlay"
+      portalClassName="modal-low"
+      parentSelector={() => document.querySelector('#modals-container')}
       isOpen={showModal}
       onRequestClose={handleCloseModal}
     >
