@@ -18,7 +18,7 @@ const useCurrentUserId = (currentUser: CurrentUserData) => {
   return currentUserId;
 };
 
-export const useRunWhenNeedNotification = (
+export const useObserveForNotification = (
   notifyAndPingCallback: () => void,
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
@@ -27,7 +27,7 @@ export const useRunWhenNeedNotification = (
 ) => {
   const currentUserId = useCurrentUserId(currentUser);
 
-  const [notificationRequestQueue, setNotificationRequestQueue] = useState<Set<string>>(new Set());
+  const [shouldNotify, setShouldNotify] = useState(false);
 
   const previousPickedUserEntryId = usePreviousValue(currentPickedUser?.entryId);
 
@@ -38,34 +38,23 @@ export const useRunWhenNeedNotification = (
       && currentPickedUserId === currentUserId
       && previousPickedUserEntryId !== currentPickedUser.entryId
     ) {
-      setNotificationRequestQueue((prevQueue) => {
-        const newQueue = new Set(prevQueue);
-        newQueue.add(currentPickedUser.entryId);
-        return newQueue;
-      });
+      setShouldNotify(true);
     }
   }, [currentUserId, currentPickedUser]);
 
   useEffect(() => {
-    Array.from(notificationRequestQueue).filter(
-      (notificationRequest) => notificationRequest === currentPickedUser?.entryId,
-    ).filter(() => {
-      const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
-        pickedUserSeenEntries,
-        currentUserId,
-        currentPickedUser?.pickedUser.userId,
-      );
-      return !hasCurrentUserSeen;
-    }).forEach((notificationRequest) => {
+    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
+      pickedUserSeenEntries,
+      currentUserId,
+      currentPickedUser?.pickedUser.userId,
+    );
+    const notifyUser = !pickedUserSeenEntries?.loading && !hasCurrentUserSeen && shouldNotify;
+    if (notifyUser) {
       notifyAndPingCallback();
-      setNotificationRequestQueue((previousNotificationRequests) => {
-        const newQueue = new Set(previousNotificationRequests);
-        newQueue.delete(notificationRequest);
-        return newQueue;
-      });
-    });
+    }
+    setShouldNotify(false);
   }, [
-    notificationRequestQueue,
+    shouldNotify,
   ]);
 };
 
@@ -88,7 +77,7 @@ export const useHandleCurrentUserNotification = (
     }
   }
 
-  useRunWhenNeedNotification(
+  useObserveForNotification(
     notifyAndPing,
     currentUser,
     pickedUserSeenEntries,
