@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { CurrentUserData, DataChannelEntryResponseType, GraphqlResponseWrapper } from 'bigbluebutton-html-plugin-sdk';
-import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
 import { PickedUserSeenEntryDataChannel, PickedUserWithEntryId } from '../pick-random-user/types';
 import { PickRandomUserSettings } from '../../commons/types';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
+import { usePreviousValue } from '../../commons/hooks';
+import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
 
 const useCurrentUserId = (currentUser: CurrentUserData) => {
   const [currentUserId, setCurrentUserId] = useState(currentUser?.userId || '');
@@ -17,6 +18,46 @@ const useCurrentUserId = (currentUser: CurrentUserData) => {
   return currentUserId;
 };
 
+export const useObserveForNotification = (
+  notifyAndPingCallback: () => void,
+  currentUser: CurrentUserData,
+  pickedUserSeenEntries: GraphqlResponseWrapper<
+    DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
+  currentPickedUser: PickedUserWithEntryId,
+) => {
+  const currentUserId = useCurrentUserId(currentUser);
+
+  const [shouldNotify, setShouldNotify] = useState(false);
+
+  const previousPickedUserEntryId = usePreviousValue(currentPickedUser?.entryId);
+
+  const currentPickedUserId = currentPickedUser?.pickedUser?.userId;
+
+  useEffect(() => {
+    if (currentPickedUser
+      && currentPickedUserId === currentUserId
+      && previousPickedUserEntryId !== currentPickedUser.entryId
+    ) {
+      setShouldNotify(true);
+    }
+  }, [currentUserId, currentPickedUser]);
+
+  useEffect(() => {
+    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
+      pickedUserSeenEntries,
+      currentUserId,
+      currentPickedUser?.pickedUser.userId,
+    );
+    const notifyUser = !pickedUserSeenEntries?.loading && !hasCurrentUserSeen && shouldNotify;
+    if (notifyUser) {
+      notifyAndPingCallback();
+    }
+    setShouldNotify(false);
+  }, [
+    shouldNotify,
+  ]);
+};
+
 export const useHandleCurrentUserNotification = (
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
@@ -25,46 +66,21 @@ export const useHandleCurrentUserNotification = (
   pickRandomUserSettings: PickRandomUserSettings,
   notificationMessage: string,
 ) => {
-  const currentUserId = useCurrentUserId(currentUser);
-
   const { pingSoundEnabled, pingSoundUrl, browserNotificationEnabled } = pickRandomUserSettings;
 
-  const [currentUserNotified, setCurrentUserNotified] = useState(false);
-
-  const currentPickedUserId = currentPickedUser?.pickedUser?.userId;
-
-  // Control internal state of user-notification to not rely only on data-channel information
-  useEffect(() => {
-    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
-      pickedUserSeenEntries,
-      currentUserId,
-      currentPickedUserId,
-    );
-    if (hasCurrentUserSeen) {
-      setCurrentUserNotified(false);
+  function notifyAndPing() {
+    if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
+    if (browserNotificationEnabled) {
+      notifyRandomlyPickedUser(
+        notificationMessage,
+      );
     }
-  }, [pickedUserSeenEntries]);
+  }
 
-  // Notify or ping audio (or both) when user is selected
-  useEffect(() => {
-    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
-      pickedUserSeenEntries,
-      currentUserId,
-      currentPickedUserId,
-    );
-    if (currentPickedUser
-      && currentPickedUserId === currentUserId
-      // Current user must not have seen this entry and data should be done loading
-      && !hasCurrentUserSeen && !pickedUserSeenEntries?.loading
-      && !currentUserNotified
-    ) {
-      if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
-      if (browserNotificationEnabled) {
-        notifyRandomlyPickedUser(
-          notificationMessage,
-        );
-      }
-      setCurrentUserNotified(true);
-    }
-  }, [currentUserId, currentPickedUser, pickedUserSeenEntries, pickRandomUserSettings]);
+  useObserveForNotification(
+    notifyAndPing,
+    currentUser,
+    pickedUserSeenEntries,
+    currentPickedUser,
+  );
 };

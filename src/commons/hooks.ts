@@ -1,4 +1,5 @@
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import { useEffect, useRef } from 'react';
 import { createIntl, createIntlCache } from 'react-intl';
 
 const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
@@ -26,4 +27,12 @@ export const useGetInternationalization = (pluginApi: PluginApi) => {
     intl,
     localeMessagesLoading,
   };
+};
+
+export const usePreviousValue = <T = unknown>(value: T) => {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 };
