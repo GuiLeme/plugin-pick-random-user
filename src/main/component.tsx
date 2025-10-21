@@ -12,7 +12,7 @@ function MainComponent(
   BbbPluginSdk.initialize(uuid);
   const pluginApi: PluginApi = BbbPluginSdk.getPluginApi(uuid);
 
-  console.log('hello world', pluginApi);
+  console.log('Hello world', pluginApi);
 
   return null;
 }
