@@ -47,7 +47,7 @@ export function PickUserModal(props: PickUserModalProps) {
     setShowPresenterView(currentUser?.presenter && !currentPickedUser);
   }, [currentUser, currentPickedUser]);
 
-  const {remainingSeconds, canClose} = usePreventCloseModalCountdown(
+  const { remainingSeconds, canClose } = usePreventCloseModalCountdown(
     currentUser,
     pickedUserSeenEntries,
     currentPickedUser,

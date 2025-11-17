@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { defineMessages } from 'react-intl';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
@@ -38,7 +38,6 @@ const intlMessages = defineMessages({
   },
 });
 
-
 export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const {
     intl,
@@ -51,8 +50,6 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     canClose,
     progressPercentage,
   } = props;
-
-  
 
   const handleBackToPresenterView = () => {
     if (currentUser?.presenter) {
