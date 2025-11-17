@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { defineMessages } from 'react-intl';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
@@ -26,7 +26,18 @@ const intlMessages = defineMessages({
     description: 'Alternative text for avatar image',
     defaultMessage: 'Avatar image of user {0}',
   },
+  modalCloseDelayMessage: {
+    id: 'pickRandomUserPlugin.modal.closeDelayMessage',
+    description: 'Message showing countdown before modal can be closed',
+    defaultMessage: 'You can close this modal in {seconds} seconds',
+  },
+  modalCloseDelayMessageSingular: {
+    id: 'pickRandomUserPlugin.modal.closeDelayMessageSingular',
+    description: 'Message showing countdown before modal can be closed (singular)',
+    defaultMessage: 'You can close this modal in {seconds} second',
+  },
 });
+
 
 export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const {
@@ -36,7 +47,12 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     setShowPresenterView,
     pickedUserSeenEntries,
     pushPickedUserSeen,
+    remainingSeconds,
+    canClose,
+    progressPercentage,
   } = props;
+
+  
 
   const handleBackToPresenterView = () => {
     if (currentUser?.presenter) {
@@ -65,6 +81,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const avatarAltDescriptor = intl.formatMessage(intlMessages.currentUserPicked, {
     0: pickedUserWithEntryId?.pickedUser?.name,
   });
+
   return (
     <Styled.PickedUserViewWrapper>
       <Styled.PickedUserViewTitle>{title}</Styled.PickedUserViewTitle>
@@ -87,6 +104,16 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
           </>
         ) : null
       }
+      {!canClose && remainingSeconds > 0 && !currentUser?.presenter && (
+        <Styled.CountdownMessage>
+          {intl.formatMessage(
+            remainingSeconds === 1
+              ? intlMessages.modalCloseDelayMessageSingular
+              : intlMessages.modalCloseDelayMessage,
+            { seconds: Math.ceil(remainingSeconds) },
+          )}
+        </Styled.CountdownMessage>
+      )}
       {
         (currentUser?.presenter) ? (
           <Styled.BackButton type="button" onClick={handleBackToPresenterView}>
@@ -94,6 +121,11 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
           </Styled.BackButton>
         ) : null
       }
+      {!canClose && remainingSeconds > 0 && currentUser?.presenter && (
+        <Styled.CountdownBarContainer>
+          <Styled.CountdownBar progress={progressPercentage} />
+        </Styled.CountdownBarContainer>
+      )}
     </Styled.PickedUserViewWrapper>
   );
 }

@@ -5,7 +5,7 @@ import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
-import { useHandleCurrentUserNotification } from './hooks';
+import { useHandleCurrentUserNotification, usePreventCloseModalCountdown } from './hooks';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -47,7 +47,24 @@ export function PickUserModal(props: PickUserModalProps) {
     setShowPresenterView(currentUser?.presenter && !currentPickedUser);
   }, [currentUser, currentPickedUser]);
 
+  const {remainingSeconds, canClose} = usePreventCloseModalCountdown(
+    currentUser,
+    pickedUserSeenEntries,
+    currentPickedUser,
+    pickRandomUserSettings,
+  );
+
   if (!showModal) return null;
+
+  const handleCloseAttempt = () => {
+    if (canClose) {
+      handleCloseModal();
+    }
+  };
+
+  const progressPercentage = pickRandomUserSettings.preventCloseDelaySeconds > 0
+    ? (remainingSeconds / pickRandomUserSettings.preventCloseDelaySeconds) * 100
+    : 0;
 
   return (
     <Styled.PluginModal
@@ -55,15 +72,20 @@ export function PickUserModal(props: PickUserModalProps) {
       portalClassName="modal-low"
       parentSelector={() => document.querySelector('#modals-container')}
       isOpen={showModal}
-      onRequestClose={handleCloseModal}
+      onRequestClose={handleCloseAttempt}
+      shouldCloseOnOverlayClick={canClose}
+      shouldCloseOnEsc={canClose}
     >
       <Styled.CloseButtonWrapper>
         <Styled.CloseButton
           type="button"
-          onClick={() => {
-            handleCloseModal();
-          }}
+          onClick={handleCloseAttempt}
           aria-label="Close button"
+          disabled={!canClose}
+          style={{
+            opacity: canClose ? 1 : 0.5,
+            cursor: canClose ? 'pointer' : 'not-allowed',
+          }}
         >
           <i
             className="icon-bbb-close"
@@ -93,6 +115,9 @@ export function PickUserModal(props: PickUserModalProps) {
                 currentUser,
                 showModal,
                 setShowPresenterView,
+                remainingSeconds,
+                canClose,
+                progressPercentage,
               }}
             />
           )

@@ -8,7 +8,11 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
-import { DEFAULT_PING_SOUND_URL, PICKED_USER_TIME_WINDOW } from '../../commons/constants';
+import {
+  DEFAULT_PING_SOUND_URL,
+  DEFAULT_PREVENT_CLOSE_DELAY_SECONDS,
+  PICKED_USER_TIME_WINDOW,
+} from '../../commons/constants';
 import { hasCurrentUserSeenPickedUser, isNumber } from '../../commons/utils';
 import { PickRandomUserSettings } from '../../commons/types';
 import { WindowClientSettings } from '../modal/types';
@@ -81,13 +85,26 @@ const getPingSoundUrl = (settings: PluginSettingsData): string => {
   return pingSoundUrl;
 };
 
+const getPreventCloseDelayFromSettings = (settings: PluginSettingsData) => {
+  const settingPreventCloseDelay = settings.preventCloseDelaySeconds as unknown;
+  if (isNumber(settingPreventCloseDelay)) {
+    const delay: number = settingPreventCloseDelay as number;
+    return delay;
+  } return DEFAULT_PREVENT_CLOSE_DELAY_SECONDS;
+};
+
 export const useGetAllSettings = (
   settingsData: GraphqlResponseWrapper<PluginSettingsData>,
 ): PickRandomUserSettings => {
   const [pingSoundEnabled, setPingSoundEnabled] = useState<boolean>(true);
   const [browserNotificationEnabled, setBrowserNotificationEnabled] = useState<boolean>(false);
   const [pingSoundUrl, setPingSoundUrl] = useState<string>(DEFAULT_PING_SOUND_URL);
-  const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(PICKED_USER_TIME_WINDOW);
+  const [pickedUserTimeWindow, setPickedUserTimeWindow] = useState<number>(
+    PICKED_USER_TIME_WINDOW,
+  );
+  const [preventCloseDelaySeconds, setPreventCloseDelaySeconds] = useState<number>(
+    DEFAULT_PREVENT_CLOSE_DELAY_SECONDS,
+  );
   useSettingsLoaded((settings) => {
     setBrowserNotificationEnabled(
       (previousState) => getBrowserNotificationEnabled(settings, previousState),
@@ -97,12 +114,14 @@ export const useGetAllSettings = (
     );
     setPickedUserTimeWindow(getPickedUserTimeWindowFromSettings(settings));
     setPingSoundUrl(getPingSoundUrl(settings));
+    setPreventCloseDelaySeconds(getPreventCloseDelayFromSettings(settings));
   }, settingsData);
   return {
     pingSoundEnabled,
     pingSoundUrl,
     browserNotificationEnabled,
     pickedUserTimeWindow,
+    preventCloseDelaySeconds,
   };
 };
 

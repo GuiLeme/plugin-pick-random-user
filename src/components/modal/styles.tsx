@@ -76,7 +76,22 @@ const CloseButtonWrapper = styled.div`
   width: 100%;
   align-items: flex-end;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
 `;
 
-export { PluginModal, CloseButton, CloseButtonWrapper };
+const CountdownMessage = styled.div`
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+`;
+
+export {
+  PluginModal, CloseButton, CloseButtonWrapper, CountdownMessage,
+};
