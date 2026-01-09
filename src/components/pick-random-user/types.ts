@@ -5,6 +5,7 @@ export interface PickedUser {
     role: string;
     avatar: string;
     color: string;
+    bot: boolean;
 }
 
 export interface PickedUserWithEntryId {
