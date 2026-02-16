@@ -3,6 +3,8 @@
   "pickRandomUserPlugin.modal.pickedUserView.title.randomUserPicked": "Utente scelto a caso",
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "indietro",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Opzioni",
+  "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "Includi moderatori",
+  "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "Includi il presentatore",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Includi l'utente già selezionato",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "Disponibile per la selezione",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "utente",

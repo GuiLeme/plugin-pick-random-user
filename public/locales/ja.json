@@ -4,6 +4,8 @@
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "戻る",
   "pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText": "ユーザー {0} のアバター画像",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "設定",
+  "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "モデレーターを含める",
+  "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "発表者を含める",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "既に指名した人を含める",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "指名可能な人",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "人のユーザー",
