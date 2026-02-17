@@ -3,4 +3,5 @@ export interface PickRandomUserSettings {
   pingSoundUrl: string;
   browserNotificationEnabled: boolean;
   pickedUserTimeWindow: number;
+  preventCloseDelaySeconds: number;
 }

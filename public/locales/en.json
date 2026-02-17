@@ -18,5 +18,7 @@
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser": "Pick {0}",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain": "Pick again",
   "pickRandomUserPlugin.actionsButtonDropdown.label.pickUser": "Pick random user",
-  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Display last randomly picked user"
+  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Display last randomly picked user",
+  "pickRandomUserPlugin.modal.closeDelayMessage": "You can close this modal in {seconds} seconds",
+  "pickRandomUserPlugin.modal.closeDelayMessageSingular": "You can close this modal in {seconds} second"
 }

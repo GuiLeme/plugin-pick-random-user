@@ -15,6 +15,9 @@ export interface PickedUserViewComponentProps {
         DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
     pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>;
     setShowPresenterView: React.Dispatch<React.SetStateAction<boolean>>;
+    remainingSeconds: number;
+    canClose: boolean;
+    progressPercentage: number;
 }
 
 export interface ModalAvatarProps {

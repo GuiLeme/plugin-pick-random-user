@@ -30,6 +30,7 @@ Down below, we list all the possible configurations this plugin supports, and th
     pingSoundUrl: resources/sounds/doorbell.mp3
     browserNotificationEnabled: true
     pickedUserTimeWindow: 10 # seconds
+    preventCloseDelaySeconds: 3 # seconds
 ```
 
 | Name                   | Description                          | Default                     |
@@ -37,8 +38,32 @@ Down below, we list all the possible configurations this plugin supports, and th
 | `pingSoundEnabled`     | Flag that decides whether the ping sound is enabled for picked user    | `true`                      |
 | `pingSoundUrl`         | URL of the ping sound file           | `resources/sounds/doorbell.mp3` |
 | `browserNotificationEnabled` | Flag that decides whether to send browser notification when user is picked | `false` |
-| `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `30`               |
+| `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `10`               |
+| `preventCloseDelaySeconds` | Delay in seconds before the modal can be closed to prevent accidental closures | `3` |
 
+
+### Prevent Close Delay
+
+By default, when the modal appears showing the picked user (the view that displays the selected user's name and avatar), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
+- The close button (X) is disabled and grayed out
+- Clicking outside the modal does nothing
+- Pressing the Escape key does nothing
+- Visual countdown indicator:
+  - **For viewers**: A text message below the user's name: "You can close this modal in X seconds"
+  - **For presenters**: A blue progress bar (similar to YouTube's) that shrinks as time passes
+
+**Note:** This delay only applies to the picked user view. The presenter view (used for selecting users) can be closed immediately without any delay.
+
+After the countdown finishes, all close methods become available. To change this delay, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+
+```yaml
+public:
+  # ...
+  plugins:
+    - name: PickRandomUserPlugin
+      settings:
+        preventCloseDelaySeconds: 5  # Set to 0 to disable the delay
+```
 
 ### Notification
 
