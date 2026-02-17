@@ -84,9 +84,6 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   };
 
   const handleCloseModal = (): void => {
-    if (currentUser?.presenter) {
-      pushPickedUser(null);
-    }
     setShowModal(false);
   };
 
@@ -120,6 +117,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       >
         <PickUserModal
           {...{
+            uuid,
             pickRandomUserSettings,
             intl,
             showModal,

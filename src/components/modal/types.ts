@@ -6,6 +6,7 @@ import { PickRandomUserSettings } from '../../commons/types';
 
 export interface PickUserModalProps {
   pickRandomUserSettings: PickRandomUserSettings
+  uuid: string,
   intl: IntlShape
   showModal: boolean;
   handleCloseModal: () => void;

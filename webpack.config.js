@@ -24,6 +24,11 @@ module.exports = {
     },
     client: {
       overlay: false,
+      webSocketURL: {
+        hostname: 'localhost',
+        port: 4701,
+        protocol: 'ws',
+      },
     },
     onBeforeSetupMiddleware: (devServer) => {
       if (!devServer) {

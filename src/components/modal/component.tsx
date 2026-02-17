@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
@@ -29,7 +29,10 @@ export function PickUserModal(props: PickUserModalProps) {
     deletionFunction,
     pickedUserSeenEntries,
     pushPickedUserSeen,
+    uuid,
   } = props;
+
+  const modalAnchor = useRef(document.getElementById(uuid));
 
   const [showPresenterView, setShowPresenterView] = useState<boolean>(
     currentUser?.presenter && !currentPickedUser,
@@ -53,6 +56,7 @@ export function PickUserModal(props: PickUserModalProps) {
     <Styled.PluginModal
       overlayClassName="modalOverlay"
       portalClassName="modal-low"
+      appElement={modalAnchor.current}
       parentSelector={() => document.querySelector('#modals-container')}
       isOpen={showModal}
       onRequestClose={handleCloseModal}
