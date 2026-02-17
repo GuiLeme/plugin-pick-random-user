@@ -11,7 +11,7 @@ export const filterPossibleUsersToBePicked = (
   pickedUserFromDataChannel: DataChannelEntryResponseType<PickedUser>[],
   filterOptions: FilterOptionsType,
 ) => ({
-  user: allUsers?.user.filter((user) => {
+  user: allUsers?.user.filter((user) => !user.bot).filter((user) => {
     if (!filterOptions.includeModerators) return user.role === Role.VIEWER;
     return true;
   }).filter((user) => {
