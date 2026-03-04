@@ -59,8 +59,8 @@ export function PickUserModal(props: PickUserModalProps) {
 
   if (!showModal) return null;
 
-  const handleCloseAttempt = (isFromCloseButton: boolean = false) => {
-    if (canClose || isFromCloseButton) {
+  const handleCloseAttempt = () => {
+    if (canClose) {
       handleCloseModal();
     }
   };
@@ -83,7 +83,7 @@ export function PickUserModal(props: PickUserModalProps) {
       <Styled.CloseButtonWrapper>
         <Styled.CloseButton
           type="button"
-          onClick={() => handleCloseAttempt(true)}
+          onClick={handleCloseModal}
           aria-label="Close button"
         >
           <i
