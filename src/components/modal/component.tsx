@@ -83,13 +83,8 @@ export function PickUserModal(props: PickUserModalProps) {
       <Styled.CloseButtonWrapper>
         <Styled.CloseButton
           type="button"
-          onClick={handleCloseAttempt}
+          onClick={handleCloseModal}
           aria-label="Close button"
-          disabled={!canClose}
-          style={{
-            opacity: canClose ? 1 : 0.5,
-            cursor: canClose ? 'pointer' : 'not-allowed',
-          }}
         >
           <i
             className="icon-bbb-close"
