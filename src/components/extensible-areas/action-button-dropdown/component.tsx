@@ -35,6 +35,7 @@ function ActionButtonDropdownManager(props: ActionButtonDropdownManagerProps): R
         new ActionButtonDropdownOption({
           label: intl.formatMessage(intlMessages.pickUserLabel),
           icon: 'user',
+          dataTest: 'actionDropdownButtonPlugin',
           tooltip: '',
           allowed: true,
           onClick: () => {
@@ -49,6 +50,7 @@ function ActionButtonDropdownManager(props: ActionButtonDropdownManagerProps): R
           label: intl.formatMessage(intlMessages.viewLastPickedUserLabel),
           icon: 'user',
           tooltip: '',
+          dataTest: 'displayLastRandomlyPickedUser',
           allowed: true,
           onClick: () => {
             setShowModal(true);

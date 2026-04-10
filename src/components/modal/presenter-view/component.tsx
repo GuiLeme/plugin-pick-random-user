@@ -211,7 +211,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
         <Styled.PresenterViewSectionTitle>
           {intl.formatMessage(intlMessages.availableTitle)}
         </Styled.PresenterViewSectionTitle>
-        <Styled.PresenterViewSectionContent>
+        <Styled.PresenterViewSectionContent data-test="pickRandomUserAvailableContent">
           {`${users?.length} ${userRoleLabel}: `}
           {makeHorizontalListOfNames(users)}
         </Styled.PresenterViewSectionContent>
@@ -223,6 +223,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
           </Styled.PresenterViewSectionTitle>
           <Styled.PresenterViewSectionClearAllButton
             type="button"
+            data-test="pickRandomUserClearAllButton"
             onClick={() => {
               deletionFunction([RESET_DATA_CHANNEL]);
             }}
@@ -231,7 +232,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
           </Styled.PresenterViewSectionClearAllButton>
         </Styled.PresenterViewSectionTitleWrapper>
         <Styled.PresenterViewSectionListWrapper>
-          <Styled.PresenterViewSectionList>
+          <Styled.PresenterViewSectionList data-test="pickRandomUserPreviouslyPickedList">
             {
               makeVerticalListOfNames(dataChannelPickedUsers)
             }
@@ -242,6 +243,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
         users?.length > 0 ? (
           <Styled.PickUserButton
             type="button"
+            data-test="pickRandomUserPickButton"
             onClick={() => {
               handlePickRandomUser();
             }}
@@ -253,7 +255,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             }
           </Styled.PickUserButton>
         ) : (
-          <p>
+          <p data-test="pickRandomUserNoUsersWarning">
             {intl.formatMessage(intlMessages.noUsersWarning, { 0: userRoleLabel })}
           </p>
         )
