@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { test as base } from '@playwright/test';
-import { Sample } from '../core/sample';
+import { Plugin } from '../core/plugin';
 import { SessionPage } from '../core/sessionPage';
 import {
   encodeCustomParams,
@@ -48,7 +48,7 @@ export function createMultiUserTest(config: MultiUserTestConfig) {
         viewport: { width: 1280, height: 720 },
       });
       const modRawPage = await modContext.newPage();
-      const sample = new Sample({ browser, context: modContext });
+      const sample = new Plugin({ browser, context: modContext });
       await sample.initModPage(modRawPage, { createParameter });
       const { modPage } = sample;
 

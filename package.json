@@ -43,6 +43,7 @@
     ]
   },
   "devDependencies": {
+    "@types/xml2js": "^0.4.14",
     "@playwright/test": "^1.51.1",
     "@types/sha.js": "^2.4.4",
     "sha.js": "^2.4.11",

@@ -1,40 +1,30 @@
 /**
  * Behavioural tests – multi-user (moderator/presenter + attendee/viewer).
- *
- * These tests verify data-channel synchronisation and cross-user UX:
- *   - Both participants see the SAME picked user name.
- *   - The attendee's modal opens automatically when they are picked.
- *   - Title text differs correctly per role (presenter vs. picked viewer).
- *   - Countdown message is shown only to the viewer, not the presenter.
- *   - The "Display last randomly picked user" option appears in the attendee's
- *     actions dropdown after a pick.
- *
- * Setup: two independent browser contexts joined into the same BBB meeting.
- * With default filters (includeModerators=false, includePresenter=false) the
- * attendee is the only eligible user, so every pick targets them deterministically.
  */
-import { wait } from '@testing-library/user-event/dist/utils';
-import { checkPluginAvailability } from '../core/fixtures/sampleBeforeAll';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
-import { createMultiUserTest } from './fixture';
+import { test, BrowserContext } from '@playwright/test';
+import { checkPluginAvailability } from '../core/fixtures/pluginBeforeAll';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
 import { elements as e } from '../elements';
 import { SessionPage as Page } from '../core/sessionPage';
+import { Plugin } from '../core/plugin';
+import {
+  encodeCustomParams,
+  getJoinURL,
+  generateSettingsData,
+} from '../core/helpers';
+import {
+  attendeeCleanupAfterTest,
+  goBackToPresenterView,
+  moderatorCleanupAfterTest,
+  openModal,
+} from './helpers';
 
 const PLUGIN_NAME = 'pick-random-user-plugin';
 const ENV_VAR_NAME = 'PICK_RANDOM_USER_PLUGIN_URL';
 
-const { test, setPluginUrl, getPluginUrl } = createMultiUserTest({
-  envVarName: ENV_VAR_NAME,
-  getPluginUrl: () => process.env[ENV_VAR_NAME],
-});
-
-/** Open the "Pick random user" modal from the actions dropdown. */
-async function openModal(modPage: Page): Promise<void> {
-  await modPage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
-  await modPage.page.click(e.actions);
-  await modPage.hasElement(e.pickRandomUserActionButton, 'action button should appear');
-  await modPage.page.click(e.pickRandomUserActionButton);
-}
+let pluginUrl: string | undefined = process.env[ENV_VAR_NAME];
+const setPluginUrl = (url: string) => { pluginUrl = url; };
+const getPluginUrl = () => pluginUrl;
 
 /**
  * Wait for the attendee's page to finish loading the whiteboard.
@@ -44,30 +34,83 @@ async function waitForAttendeeMeeting(attendeePage: Page): Promise<void> {
   await attendeePage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
 }
 
-/** Click the back button on the presenter's picked-user view to return to the presenter view. */
-async function goBackToPresenterView(modPage: Page): Promise<void> {
-  await modPage.hasElement(e.pickRandomUserBackButton, 'back button should be visible');
-  await modPage.page.click(e.pickRandomUserBackButton);
-  await modPage.hasElement(
-    e.includeModeratorsCheckbox,
-    'presenter view should be restored after clicking back',
-    ELEMENT_WAIT_TIME,
-  );
+/**
+ * Reset state after each test for both pages:
+ */
+async function cleanupAfterTest(modPage: Page, attendeePage: Page): Promise<void> {
+  await attendeeCleanupAfterTest(attendeePage);
+  await moderatorCleanupAfterTest(modPage);
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
+test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
+  test.describe.configure({ mode: 'serial' });
 
-test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () => {
-  test.beforeAll(checkPluginAvailability({
-    pluginName: PLUGIN_NAME,
-    envVarName: ENV_VAR_NAME,
-    setPluginUrl,
-    getPluginUrl,
-  }));
+  let modPage: Page;
+  let attendeePage: Page;
+  let modContext: BrowserContext;
+  let attendeeContext: BrowserContext;
 
-  test('should show the same picked user name on both the presenter page and the attendee page', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
+  test.beforeAll(async ({ browser, request }, testInfo) => {
+    await checkPluginAvailability({
+      pluginName: PLUGIN_NAME,
+      envVarName: ENV_VAR_NAME,
+      setPluginUrl,
+      getPluginUrl,
+    })({ request }, testInfo);
 
+    const resolvedUrl = getPluginUrl();
+    if (!resolvedUrl) return;
+
+    const createParameter = encodeCustomParams(
+      `pluginManifests=${JSON.stringify([{ url: resolvedUrl }])}`,
+    );
+
+    // ── Moderator / presenter ──────────────────────────────────────────────
+    modContext = await browser.newContext({
+      permissions: ['clipboard-read', 'clipboard-write', 'camera', 'microphone'],
+      viewport: { width: 1280, height: 720 },
+    });
+    const modRawPage = await modContext.newPage();
+    const sample = new Plugin({ browser, context: modContext });
+    await sample.initModPage(modRawPage, { createParameter });
+    modPage = sample.modPage;
+
+    // ── Attendee (viewer) ──────────────────────────────────────────────────
+    attendeeContext = await browser.newContext({
+      permissions: ['clipboard-read', 'clipboard-write', 'camera', 'microphone'],
+      viewport: { width: 1280, height: 720 },
+    });
+    const attendeeRawPage = await attendeeContext.newPage();
+    attendeePage = new Page({ browser, page: attendeeRawPage });
+
+    const joinUrl = getJoinURL({
+      meetingID: modPage.meetingId,
+      isModerator: false,
+      skipSessionDetailsModal: true,
+    });
+    await attendeeRawPage.goto(joinUrl);
+    await attendeeRawPage.waitForSelector('div#layout', { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    attendeePage.settings = await generateSettingsData(attendeeRawPage);
+    if (attendeePage.settings?.autoJoinAudioModal) {
+      await attendeePage.closeAudioModal();
+    }
+    await attendeeRawPage.addStyleTag({
+      content: "body { font-family: 'Liberation Sans', Arial, sans-serif; }",
+    });
+    attendeePage.meetingId = modPage.meetingId;
+  });
+
+  test.afterAll(async () => {
+    await modContext?.close();
+    await attendeeContext?.close();
+  });
+
+  test.afterEach(async () => {
+    if (modPage && attendeePage) await cleanupAfterTest(modPage, attendeePage);
+  });
+
+  test('should show the same picked user name on both the presenter page and the attendee page', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
 
@@ -96,25 +139,20 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     );
 
     // Both pages must display the exact same name text.
-    const presenterName = await modPage.getLocator(e.pickRandomUserPickedUserName).textContent();
-    const attendeeName = await attendeePage
+    const pickedNamePresenter = await modPage.getLocator(
+      e.pickRandomUserPickedUserName,
+    ).textContent();
+    const pickedNameAttendee = await attendeePage
       .getLocator(e.pickRandomUserPickedUserName).textContent();
 
+    test.expect(pickedNamePresenter, 'picked user name on presenter page should not be empty').toBeTruthy();
     test.expect(
-      presenterName,
-      'picked user name on presenter page should not be empty',
-    ).toBeTruthy();
-    test.expect(
-      attendeeName,
+      pickedNameAttendee,
       'picked user name shown to attendee must match the name shown to the presenter',
-    ).toBe(presenterName);
-
-    wait(1000);
+    ).toBe(pickedNamePresenter);
   });
 
-  test('should open the attendee modal automatically without any action on the attendee side', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should open the attendee modal automatically without any action on the attendee side', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -130,20 +168,14 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     );
   });
 
-  test('should show "You have been randomly picked" to the picked attendee and "Randomly picked user" to the presenter', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should show "You have been randomly picked" to the picked attendee and "Randomly picked user" to the presenter', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
     await modPage.page.click(e.pickRandomUserPickButton);
 
     // Attendee is the picked user → sees "You have been randomly picked".
-    await attendeePage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
-      'attendee modal should open',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
+    await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
     await attendeePage.hasText(
       e.pickRandomUserPickedUserViewTitle,
       'You have been randomly picked',
@@ -151,11 +183,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     );
 
     // Presenter sees "Randomly picked user" (different user was picked).
-    await modPage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
-      'presenter modal should transition to picked-user view',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
+    await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter modal should transition to picked-user view', ELEMENT_WAIT_LONGER_TIME);
     await modPage.hasText(
       e.pickRandomUserPickedUserViewTitle,
       'Randomly picked user',
@@ -163,9 +191,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     );
   });
 
-  test('should show a countdown message only to the attendee and a countdown bar only to the presenter', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should show a countdown message only to the attendee and a countdown bar only to the presenter', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -193,9 +219,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
   });
 
-  test('should not close the picked attendee modal when clicking the overlay during the countdown lock period', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should not close the picked attendee modal when clicking the overlay during the countdown lock period', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -224,9 +248,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
   });
 
-  test('should keep the previously-picked viewer in the available pool and re-pick the same user when "include already picked users" is enabled and the presenter navigates back', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should keep the previously-picked viewer in the available pool and re-pick the same user when "include already picked users" is enabled and the presenter navigates back', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
 
@@ -289,9 +311,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     ).toBe(firstPickedName);
   });
 
-  test('should inject "Display last randomly picked user" into the attendee actions dropdown after a pick', async ({ multiUserTest }): Promise<void> => {
-    const { modPage, attendeePage } = multiUserTest;
-
+  test('should inject "Display last randomly picked user" into the attendee actions dropdown after a pick', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -316,7 +336,7 @@ test.describe.parallel('Pick Random User Plugin - Behavioural (multi-user)', () 
     await attendeePage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
     await attendeePage.page.click(e.actions);
 
-    // The plugin injects "Display last randomly picked user" for attendees
+    // The plugin injects "Display last randomly picked user" for attendees.
     await attendeePage.hasElement(
       e.displayLastRandomlyPickedUser,
       'attendee actions dropdown should contain the plugin option',

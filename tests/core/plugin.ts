@@ -1,17 +1,19 @@
 import { Page, Browser, BrowserContext } from '@playwright/test';
 import { InitOptions, SessionPage } from './sessionPage';
 
-interface SampleProps {
+interface PluginProps {
   browser: Browser;
   context: BrowserContext;
 }
 
-export class Sample {
+export class Plugin {
   readonly browser: Browser;
+
   readonly context: BrowserContext;
+
   modPage!: SessionPage;
 
-  constructor({ browser, context }: SampleProps) {
+  constructor({ browser, context }: PluginProps) {
     this.browser = browser;
     this.context = context;
   }
