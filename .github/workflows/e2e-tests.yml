@@ -54,6 +54,20 @@ jobs:
 
       # ── Step 2: Publish to S3 ────────────────────────────────────────────────
 
+      - name: Verify secrets and environment
+        env:
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: |
+          echo "S3_ACCESS_KEY set:   $([[ -n "$S3_ACCESS_KEY"   ]] && echo 'YES' || echo 'NO')"
+          echo "S3_SECRET_KEY set:   $([[ -n "$S3_SECRET_KEY"   ]] && echo 'YES' || echo 'NO')"
+          echo "S3_ENDPOINT_URL set: $([[ -n "$S3_ENDPOINT_URL" ]] && echo 'YES' || echo 'NO')"
+          echo "S3_BUCKET set:       $([[ -n "$S3_BUCKET"       ]] && echo 'YES' || echo 'NO')"
+          echo "S3_PATH:             $S3_PATH"
+          echo ".env exists:         $([[ -f .env ]] && echo 'YES — will override secrets!' || echo 'no')"
+
       - name: Publish plugin to S3
         env:
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
