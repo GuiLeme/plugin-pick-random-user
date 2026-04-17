@@ -66,6 +66,9 @@ jobs:
           echo "S3_ENDPOINT_URL set: $([[ -n "$S3_ENDPOINT_URL" ]] && echo 'YES' || echo 'NO')"
           echo "S3_BUCKET set:       $([[ -n "$S3_BUCKET"       ]] && echo 'YES' || echo 'NO')"
           echo "S3_PATH:             $S3_PATH"
+          echo "event_name=${{ github.event_name }}"
+          echo "actor=${{ github.actor }}"
+          echo "repo=${{ github.repository }}"
           echo ".env exists:         $([[ -f .env ]] && echo 'YES — will override secrets!' || echo 'no')"
 
       - name: Publish plugin to S3
