@@ -1,5 +1,5 @@
 {
-  "name": "<plugin-name>",
+  "name": "bbb-plugin-template",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.tsx",

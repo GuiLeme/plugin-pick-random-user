@@ -1,6 +1,6 @@
 {
   "requiredSdkVersion": "~0.0.73",
-  "name": "<plugin-name>",
-  "javascriptEntrypointUrl": "<plugin-name>.js",
+  "name": "bbb-plugin-template",
+  "javascriptEntrypointUrl": "BbbPluginTemplate.js",
   "localesBaseUrl": "locales"
 }
