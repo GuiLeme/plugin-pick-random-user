@@ -85,6 +85,7 @@ export function PickUserModal(props: PickUserModalProps) {
           type="button"
           onClick={handleCloseModal}
           aria-label="Close button"
+          data-test="pickRandomUserModalCloseButton"
         >
           <i
             className="icon-bbb-close"

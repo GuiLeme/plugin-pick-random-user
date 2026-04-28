@@ -81,7 +81,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
 
   return (
     <Styled.PickedUserViewWrapper>
-      <Styled.PickedUserViewTitle>{title}</Styled.PickedUserViewTitle>
+      <Styled.PickedUserViewTitle data-test="pickRandomUserPickedUserViewTitle">{title}</Styled.PickedUserViewTitle>
       {
         (pickedUserWithEntryId) ? (
           <>
@@ -97,12 +97,14 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
                 {pickedUserWithEntryId?.pickedUser?.name.slice(0, 2)}
               </Styled.PickedUserAvatarInitials>
             )}
-            <Styled.PickedUserName>{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
+            <Styled.PickedUserName data-test="pickRandomUserPickedUserName">{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
           </>
         ) : null
       }
       {!canClose && remainingSeconds > 0 && !currentUser?.presenter && (
-        <Styled.CountdownMessage>
+        <Styled.CountdownMessage
+          data-test="countDownMessage"
+        >
           {intl.formatMessage(
             remainingSeconds === 1
               ? intlMessages.modalCloseDelayMessageSingular
@@ -113,14 +115,17 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       )}
       {
         (currentUser?.presenter) ? (
-          <Styled.BackButton type="button" onClick={handleBackToPresenterView}>
+          <Styled.BackButton type="button" data-test="pickRandomUserBackButton" onClick={handleBackToPresenterView}>
             {intl.formatMessage(intlMessages.backButtonLabel)}
           </Styled.BackButton>
         ) : null
       }
       {!canClose && remainingSeconds > 0 && currentUser?.presenter && (
         <Styled.CountdownBarContainer>
-          <Styled.CountdownBar progress={progressPercentage} />
+          <Styled.CountdownBar
+            data-test="countDownProgressBar"
+            progress={progressPercentage}
+          />
         </Styled.CountdownBarContainer>
       )}
     </Styled.PickedUserViewWrapper>
