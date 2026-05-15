@@ -49,6 +49,7 @@ cp .env.template .env
 | `LOCAL_CONTAINER_NAME` | no | Docker container name for the local deployment script |
 | `TIMEOUT_MULTIPLIER` | no | Multiply all timeouts (default 1 locally, 2 in CI) |
 | `CI` | no | `"true"` enables CI reporter and single-worker mode |
+| `TEST_MEETINGS` | no | Set to `"isolated"` to give each test its own meeting (see [Meeting isolation](#meeting-isolation)) |
 
 ### 3 – Build and deploy the plugin
 
@@ -66,11 +67,27 @@ npm run publish-plugin:dev
 
 ---
 
+## Meeting isolation
+
+By default every test suite (`test.describe` block) shares **one BBB meeting** for all its tests — the meeting is created once in `beforeAll` and torn down in `afterAll`. This is fast (~3 meetings total) but tests within a suite depend on the cleanup performed between them.
+
+Setting `TEST_MEETINGS=isolated` switches every suite to **one meeting per test**: the meeting is created in `beforeEach` and destroyed in `afterEach`. Tests become fully independent and can run in parallel, at the cost of more meeting setups (~15 meetings total).
+
+| Mode | Meetings created | Tests run | When to use |
+|------|-----------------|-----------|-------------|
+| default (`npm test`) | ~3 (one per suite) | serially within each suite | Normal development |
+| isolated (`npm run test:isolated`) | ~1 per test | can run in parallel | Debugging flaky state, CI full isolation |
+
+---
+
 ## Running the tests
 
 ```bash
-# All suites
+# All suites – shared meetings (default)
 npm test
+
+# All suites – one meeting per test
+npm run test:isolated
 
 # Only structural tests
 npm test -- tests/structural
