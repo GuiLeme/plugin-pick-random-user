@@ -11,7 +11,7 @@ const PickedUserViewWrapper = styled.div`
 
 const PickedUserViewTitle = styled.h1`
   font-weight: 600;
-  font-size: 20px;
+  font-size: 1.25rem;
 `;
 
 const PickedUserAvatarInitials = styled.div<ModalAvatarProps>`
@@ -39,17 +39,18 @@ const PickedUserAvatarImage = styled.img`
 `;
 
 const PickedUserName = styled.p`
-  font-size: 30px;
+  font-size: 1.875rem;
   font-weight: 500;
 `;
 
 const BackButton = styled.button`
-  border: 3px solid transparent;
+  border: 0.1875rem solid transparent;
+  margin-bottom: 1rem;
   overflow: visible;
   display: inline-block;
   background-color: var(--btn-primary-bg, var(--color-primary, #0F70D7));
   color: var(--btn-primary-color, var(--color-white, #FFF));
-  border-radius: 2px;
+  border-radius: 0.125rem;
   font-weight: 600;
   line-height: 1;
   text-align: center;
@@ -57,7 +58,7 @@ const BackButton = styled.button`
   vertical-align: middle;
   cursor: pointer;
   user-select: none;
-  padding: 8px 15px;
+  padding: 0.5rem 0.9375rem;
   &:hover {
     color: var(--btn-primary-color, var(--color-white, #FFF));
     background-color: var(--btn-primary-hover-bg, #0C57A7) !important;
@@ -79,11 +80,10 @@ const CountdownMessage = styled.div`
 
 const CountdownBarContainer = styled.div`
   width: 100%;
-  height: 4px;
+  height: 0.25rem;
   background-color: #e9ecef;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   overflow: hidden;
-  margin-top: 1rem;
 `;
 
 const CountdownBar = styled.div<{ progress: number }>`
@@ -91,7 +91,7 @@ const CountdownBar = styled.div<{ progress: number }>`
   background: linear-gradient(90deg, #0F70D7 0%, #0C57A7 100%);
   width: ${({ progress }) => progress}%;
   transition: width linear 0.1s;
-  border-radius: 2px;
+  border-radius: 0.125rem;
 `;
 
 export {

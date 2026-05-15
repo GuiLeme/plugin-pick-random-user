@@ -1,6 +1,26 @@
+import { test } from '@playwright/test';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../elements';
 import { SessionPage as Page } from '../core/sessionPage';
+
+/** Click a toggle/checkbox and verify it reaches :checked state, retrying once if needed. */
+export async function clickToggleOnWithRetry(
+  page: Page,
+  selector: string,
+  description: string,
+): Promise<void> {
+  await page.page.click(selector);
+  try {
+    await page.hasElement(`${selector}:checked`, `${description} toggle should be on`, ELEMENT_WAIT_LONGER_TIME);
+  } catch {
+    test.info().annotations.push({
+      type: 'toggle-retry',
+      description: `"${description}" toggle didn't register on first click and was retried`,
+    });
+    await page.page.click(selector);
+    await page.hasElement(`${selector}:checked`, `${description} toggle should be on (retry)`, ELEMENT_WAIT_LONGER_TIME);
+  }
+}
 
 export async function openModal(modPage: Page): Promise<void> {
   await modPage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });

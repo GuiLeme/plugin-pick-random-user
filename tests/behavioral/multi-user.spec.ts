@@ -1,7 +1,9 @@
 /**
  * Behavioural tests – multi-user (moderator/presenter + attendee/viewer).
  */
-import { test, BrowserContext } from '@playwright/test';
+import {
+  test, BrowserContext, Browser, APIRequestContext, TestInfo,
+} from '@playwright/test';
 import { checkPluginAvailability } from '../core/fixtures/pluginBeforeAll';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
 import { elements as e } from '../elements';
@@ -42,16 +44,18 @@ async function cleanupAfterTest(modPage: Page, attendeePage: Page): Promise<void
   await moderatorCleanupAfterTest(modPage);
 }
 
+const ISOLATED = process.env.TEST_MEETINGS === 'isolated';
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
-  test.describe.configure({ mode: 'serial' });
+  test.describe.configure({ mode: ISOLATED ? 'default' : 'serial' });
 
   let modPage: Page;
   let attendeePage: Page;
   let modContext: BrowserContext;
   let attendeeContext: BrowserContext;
 
-  test.beforeAll(async ({ browser, request }, testInfo) => {
+  async function setupMeeting(browser: Browser, request: APIRequestContext, testInfo: TestInfo) {
     await checkPluginAvailability({
       pluginName: PLUGIN_NAME,
       envVarName: ENV_VAR_NAME,
@@ -99,16 +103,28 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
       content: "body { font-family: 'Liberation Sans', Arial, sans-serif; }",
     });
     attendeePage.meetingId = modPage.meetingId;
-  });
+  }
 
-  test.afterAll(async () => {
-    await modContext?.close();
-    await attendeeContext?.close();
-  });
-
-  test.afterEach(async () => {
-    if (modPage && attendeePage) await cleanupAfterTest(modPage, attendeePage);
-  });
+  if (ISOLATED) {
+    test.beforeEach(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterEach(async () => {
+      await modContext?.close();
+      await attendeeContext?.close();
+    });
+  } else {
+    test.beforeAll(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterAll(async () => {
+      await modContext?.close();
+      await attendeeContext?.close();
+    });
+    test.afterEach(async () => {
+      if (modPage && attendeePage) await cleanupAfterTest(modPage, attendeePage);
+    });
+  }
 
   test('should show the same picked user name on both the presenter page and the attendee page', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);

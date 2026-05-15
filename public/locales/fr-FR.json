@@ -17,5 +17,11 @@
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser": "Sélectionner {0}",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain": "Sélectionner à nouveau",
   "pickRandomUserPlugin.actionsButtonDropdown.label.pickUser": "Sélectionner un participant au hasard",
-  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Afficher le dernier participant sélectionné au hasard"
+  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Afficher le dernier participant sélectionné au hasard",
+  "pickRandomUserPlugin.modal.title": "Sélectionner un participant au hasard",
+  "pickRandomUserPlugin.modal.closeButton.ariaLabel": "Fermer",
+  "pickRandomUserPlugin.modal.presenterView.availableSection.emptyState": "Aucun {0} disponible pour la sélection",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.emptyState": "Aucun participant sélectionné pour l'instant",
+  "pickRandomUserPlugin.modal.presenterView.roleLabel.moderator": "modérateur",
+  "pickRandomUserPlugin.modal.presenterView.roleLabel.presenter": "présentateur"
 }

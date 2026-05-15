@@ -1,8 +1,7 @@
 # Pick Random User Plugin – Automated Tests
 
 End-to-end tests for the **Pick Random User Plugin** written with [Playwright](https://playwright.dev/).  
-They reuse the shared test infrastructure from the
-[BigBlueButton HTML Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk).
+The test infrastructure lives entirely inside `tests/core/`.
 
 ---
 
@@ -33,13 +32,6 @@ From the **plugin root** (`plugin-pick-random-user/`):
 ```bash
 npm install
 npx playwright install --with-deps chromium
-```
-
-The SDK test utilities are resolved via relative paths to the sibling
-`bigbluebutton-html-plugin-sdk/` directory:
-
-```bash
-cd ../bigbluebutton-html-plugin-sdk && npm install && cd -
 ```
 
 ### 2 – Configure environment variables

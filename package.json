@@ -28,6 +28,7 @@
     "lint:watch": "watch 'yarn lint'",
     "publish-plugin:dev": "bash scripts/copy-plugin-to-container.sh",
     "test": "npx playwright test",
+    "test:isolated": "TEST_MEETINGS=isolated npx playwright test",
     "test-chromium-ci": "export CI='true' && npx playwright test --project=chromium"
   },
   "browserslist": {
