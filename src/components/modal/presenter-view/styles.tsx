@@ -10,86 +10,54 @@ const SectionLabel = styled.span`
   letter-spacing: 0.6px;
 `;
 
-// ── Options section (toggle rows) ─────────────────────────────────────────────
+// ── Filter chips section ──────────────────────────────────────────────────────
 
-const OptionsContainer = styled.div`
-  margin-top: 0.5rem;
+const FilterRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 `;
 
-const ToggleRow = styled.label`
+const FilterLabel = styled.span`
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #8B9AAF;
+  white-space: nowrap;
+`;
+
+const ChipGroup = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.4375rem 0;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+`;
+
+const ChipInput = styled.input`
+  display: none;
+`;
+
+const FilterChip = styled.label<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
   cursor: pointer;
-  border-bottom: 1px solid #F2F4F7;
+  user-select: none;
+  transition: all 0.15s;
 
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const ToggleRowLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const IconCircle = styled.span`
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: #EEF2F8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: #4E7FF8;
-`;
-
-const ToggleLabelText = styled.span`
-  font-size: 1rem;
-  color: #1C2B3A;
-`;
-
-// Checkbox styled as a toggle switch.
-// Keeps the real <input type="checkbox"> in the DOM so Playwright selectors
-// (#includeModerators etc.) and isChecked() / toBeVisible() all keep working.
-const ToggleCheckbox = styled.input`
-  appearance: none;
-  -webkit-appearance: none;
-  width: 2.25rem;
-  height: 1.25rem;
-  border-radius: 0.625rem;
-  background: #D1D9E3;
-  cursor: pointer;
-  outline: none;
-  border: none;
-  transition: background 0.2s ease;
-  position: relative;
-  flex-shrink: 0;
-  margin: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 1rem;
-    height: 1rem;
-    background: #fff;
-    border-radius: 50%;
-    top: 0.125rem;
-    left: 0.125rem;
-    transition: left 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  }
-
-  &:checked {
-    background: #4E7FF8;
-  }
-
-  &:checked::before {
-    left: 1.125rem;
-  }
+  ${({ $active }) => ($active ? `
+    background: #EBF1FF;
+    border: 1.5px solid #4E7FF8;
+    color: #4E7FF8;
+    font-weight: 600;
+  ` : `
+    background: #F0F2F6;
+    border: 1.5px solid #D1D9E3;
+    color: #8B9AAF;
+    font-weight: 500;
+  `)}
 `;
 
 // ── Section header row (label + count/action) ─────────────────────────────────
@@ -282,12 +250,11 @@ const PreviouslyPickedSection = styled.div``;
 
 export {
   SectionLabel,
-  OptionsContainer,
-  ToggleRow,
-  ToggleRowLeft,
-  IconCircle,
-  ToggleLabelText,
-  ToggleCheckbox,
+  FilterRow,
+  FilterLabel,
+  ChipGroup,
+  ChipInput,
+  FilterChip,
   SectionHeaderRow,
   CountBadge,
   UserListContainer,

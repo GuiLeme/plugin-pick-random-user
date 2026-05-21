@@ -10,25 +10,25 @@ import { PresenterViewComponentProps } from './types';
 import { FilterOptionsContext } from '../../pick-random-user/context';
 
 const intlMessages = defineMessages({
-  optionsTitle: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.title',
-    description: 'Title of the options section on modal`s presenter view',
-    defaultMessage: 'Options',
+  filterChipsLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.label',
+    description: 'Label preceding the filter chip group',
+    defaultMessage: 'Also include:',
   },
-  includeModeratorsLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel',
-    description: 'Label to include moderator`s option on modal`s presenter view',
-    defaultMessage: 'Include moderators',
+  moderatorsChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.moderators',
+    description: 'Chip label to include moderators',
+    defaultMessage: 'Moderators',
   },
-  includePresenterLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel',
-    description: 'Label of skip presenter`s option on modal`s presenter view',
-    defaultMessage: 'Include presenter',
+  presenterChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.presenter',
+    description: 'Chip label to include presenter',
+    defaultMessage: 'Presenter',
   },
-  includePickedUsersLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel',
-    description: 'Label of include picked users option on modal`s presenter view',
-    defaultMessage: 'Include already picked users',
+  pickedUsersChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.pickedUsers',
+    description: 'Chip label to include already picked users',
+    defaultMessage: 'Already picked',
   },
   availableTitle: {
     id: 'pickRandomUserPlugin.modal.presenterView.availableSection.title',
@@ -113,27 +113,35 @@ function getInitials(name: string): string {
   return name.slice(0, 2);
 }
 
-function ShieldIcon() {
+function CheckboxSquare({ active }: { active: boolean }) {
+  const style: React.CSSProperties = active ? {
+    width: '0.875rem',
+    height: '0.875rem',
+    borderRadius: '3px',
+    background: '#4E7FF8',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  } : {
+    width: '0.875rem',
+    height: '0.875rem',
+    borderRadius: '3px',
+    background: '#fff',
+    border: '1.5px solid #C0C8D4',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  };
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-    </svg>
-  );
-}
-
-function PresentationIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19 3H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h5l-2 3v1h8v-1l-2-3h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12H5V5h14v10z" />
-    </svg>
-  );
-}
-
-function UserCheckIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M9 12c2.7 0 4-1.34 4-4 0-2.21-1.34-4-4-4S5 5.79 5 8c0 2.66 1.3 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm8-2l-1.41 1.41 3 3L22 12l-1.41-1.41-2.59 2.59L17 14z" />
-    </svg>
+    <span style={style}>
+      {active && (
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      )}
+    </span>
   );
 }
 
@@ -192,78 +200,53 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     <Styled.PresenterViewWrapper>
       <Styled.ContentPadding>
 
-        {/* OPTIONS SECTION */}
+        {/* FILTER CHIPS */}
         <Styled.OptionsSection>
-          <Styled.SectionLabel>
-            {intl.formatMessage(intlMessages.optionsTitle)}
-          </Styled.SectionLabel>
-          <Styled.OptionsContainer>
-            <Styled.ToggleRow htmlFor="includeModerators">
-              <Styled.ToggleRowLeft>
-                <Styled.IconCircle>
-                  <ShieldIcon />
-                </Styled.IconCircle>
-                <Styled.ToggleLabelText>
-                  {intl.formatMessage(intlMessages.includeModeratorsLabel)}
-                </Styled.ToggleLabelText>
-              </Styled.ToggleRowLeft>
-              <Styled.ToggleCheckbox
-                id="includeModerators"
-                type="checkbox"
-                checked={includeModerators}
-                onChange={() => {
-                  setFilterOptions((prev) => ({
-                    ...prev,
-                    includeModerators: !prev.includeModerators,
-                  }));
-                }}
-              />
-            </Styled.ToggleRow>
+          <Styled.FilterRow>
+            <Styled.FilterLabel>
+              {intl.formatMessage(intlMessages.filterChipsLabel)}
+            </Styled.FilterLabel>
+            <Styled.ChipGroup>
+              <Styled.FilterChip $active={includeModerators} htmlFor="includeModerators">
+                <Styled.ChipInput
+                  id="includeModerators"
+                  type="checkbox"
+                  checked={includeModerators}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includeModerators: !prev.includeModerators,
+                  }))}
+                />
+                <CheckboxSquare active={includeModerators} />
+                {intl.formatMessage(intlMessages.moderatorsChipLabel)}
+              </Styled.FilterChip>
 
-            <Styled.ToggleRow htmlFor="includePresenter">
-              <Styled.ToggleRowLeft>
-                <Styled.IconCircle>
-                  <PresentationIcon />
-                </Styled.IconCircle>
-                <Styled.ToggleLabelText>
-                  {intl.formatMessage(intlMessages.includePresenterLabel)}
-                </Styled.ToggleLabelText>
-              </Styled.ToggleRowLeft>
-              <Styled.ToggleCheckbox
-                id="includePresenter"
-                type="checkbox"
-                checked={includePresenter}
-                onChange={() => {
-                  setFilterOptions((prev) => ({
-                    ...prev,
-                    includePresenter: !prev.includePresenter,
-                  }));
-                }}
-              />
-            </Styled.ToggleRow>
+              <Styled.FilterChip $active={includePresenter} htmlFor="includePresenter">
+                <Styled.ChipInput
+                  id="includePresenter"
+                  type="checkbox"
+                  checked={includePresenter}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includePresenter: !prev.includePresenter,
+                  }))}
+                />
+                <CheckboxSquare active={includePresenter} />
+                {intl.formatMessage(intlMessages.presenterChipLabel)}
+              </Styled.FilterChip>
 
-            <Styled.ToggleRow htmlFor="includePickedUsers">
-              <Styled.ToggleRowLeft>
-                <Styled.IconCircle>
-                  <UserCheckIcon />
-                </Styled.IconCircle>
-                <Styled.ToggleLabelText>
-                  {intl.formatMessage(intlMessages.includePickedUsersLabel)}
-                </Styled.ToggleLabelText>
-              </Styled.ToggleRowLeft>
-              <Styled.ToggleCheckbox
-                id="includePickedUsers"
-                type="checkbox"
-                checked={includePickedUsers}
-                onChange={() => {
-                  setFilterOptions((prev) => ({
-                    ...prev,
-                    includePickedUsers: !prev.includePickedUsers,
-                  }));
-                }}
-              />
-            </Styled.ToggleRow>
-          </Styled.OptionsContainer>
+              <Styled.FilterChip $active={includePickedUsers} htmlFor="includePickedUsers">
+                <Styled.ChipInput
+                  id="includePickedUsers"
+                  type="checkbox"
+                  checked={includePickedUsers}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includePickedUsers: !prev.includePickedUsers,
+                  }))}
+                />
+                <CheckboxSquare active={includePickedUsers} />
+                {intl.formatMessage(intlMessages.pickedUsersChipLabel)}
+              </Styled.FilterChip>
+            </Styled.ChipGroup>
+          </Styled.FilterRow>
         </Styled.OptionsSection>
 
         {/* AVAILABLE USERS SECTION */}
