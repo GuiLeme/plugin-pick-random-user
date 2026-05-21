@@ -6,7 +6,7 @@
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Opções",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "Incluir moderadores",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "Incluir apresentador",
-  "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Incluir usuário já selecionado",
+  "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Incluir usuários já selecionados",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "Disponíveis para seleção",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "usuário",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabelPlural": "usuários",

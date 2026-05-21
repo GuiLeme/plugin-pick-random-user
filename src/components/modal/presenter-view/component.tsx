@@ -28,7 +28,7 @@ const intlMessages = defineMessages({
   includePickedUsersLabel: {
     id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel',
     description: 'Label of include picked users option on modal`s presenter view',
-    defaultMessage: 'Include already picked user',
+    defaultMessage: 'Include already picked users',
   },
   availableTitle: {
     id: 'pickRandomUserPlugin.modal.presenterView.availableSection.title',
@@ -181,6 +181,10 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
       ? intl.formatMessage(intlMessages.userLabelPlural, { 0: usersCount })
       : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
   })();
+
+  const userRoleLabelSingular = (!includeModerators)
+    ? intl.formatMessage(intlMessages.viewerLabel, { 0: usersCount })
+    : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
 
   const hasPickedUsers = dataChannelPickedUsers?.some((u) => !!u.payloadJson);
 
@@ -355,7 +359,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
           >
             {pickedUserWithEntryId
               ? intl.formatMessage(intlMessages.pickAgainButtonLabel)
-              : intl.formatMessage(intlMessages.pickButtonLabel, { 0: userRoleLabel })}
+              : intl.formatMessage(intlMessages.pickButtonLabel, { 0: userRoleLabelSingular })}
           </Styled.PickButton>
         ) : (
           <Styled.NoUsersWarning data-test="pickRandomUserNoUsersWarning">
