@@ -309,8 +309,8 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     );
     await modPage.hasText(
       e.pickRandomUserPickButton,
-      'Pick again',
-      'pick button should read "Pick again" because a user has already been picked this session',
+      'Pick next random user',
+      'pick button should read "Pick next random user" because a user has already been picked and includePickedUsers is ON',
     );
 
     // ── Assertion 3: re-picking selects the same (and only) eligible user ─────

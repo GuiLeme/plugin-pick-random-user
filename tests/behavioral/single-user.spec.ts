@@ -100,7 +100,7 @@ test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
     });
   }
 
-  test('should show "Pick again" button (not "Pick user") after navigating back from picked-user view', async (): Promise<void> => {
+  test('should show "Pick next random user" button (not "Pick random user") after navigating back from picked-user view when includePickedUsers is enabled', async (): Promise<void> => {
     // With "Include already picked users" ON the presenter stays in the pool
     // after being picked, so the pick button remains visible on return.
     await openModal(modPage);
@@ -114,8 +114,8 @@ test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
     );
     await modPage.hasText(
       e.pickRandomUserPickButton,
-      'Pick again',
-      'button label should read "Pick again" after a user has already been picked',
+      'Pick next random user',
+      'button label should read "Pick next random user" after a user has already been picked (includePickedUsers is enabled)',
     );
   });
 

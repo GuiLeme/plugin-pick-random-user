@@ -73,12 +73,17 @@ const intlMessages = defineMessages({
   pickButtonLabel: {
     id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser',
     description: 'Label of the button to pick another user',
-    defaultMessage: 'Pick {0}',
+    defaultMessage: 'Pick random user',
   },
-  pickAgainButtonLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain',
-    description: 'Label of the button to pick another user',
-    defaultMessage: 'Pick again',
+  pickNextRandomUserButtonLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickNext',
+    description: 'Label of the button to pick next random user (when already picked users are included in pool)',
+    defaultMessage: 'Pick next random user',
+  },
+  pickAnotherRandomUserButtonLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAnother',
+    description: 'Label of the button to pick another random user (when already picked users are excluded)',
+    defaultMessage: 'Pick another random user',
   },
   emptyState: {
     id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.emptyState',
@@ -353,8 +358,10 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             onClick={handlePickRandomUser}
           >
             {pickedUserWithEntryId
-              ? intl.formatMessage(intlMessages.pickAgainButtonLabel)
-              : intl.formatMessage(intlMessages.pickButtonLabel, { 0: userRoleLabelSingular })}
+              ? intl.formatMessage(includePickedUsers
+                ? intlMessages.pickNextRandomUserButtonLabel
+                : intlMessages.pickAnotherRandomUserButtonLabel)
+              : intl.formatMessage(intlMessages.pickButtonLabel)}
           </Styled.PickButton>
         ) : (
           <Styled.NoUsersWarning data-test="pickRandomUserNoUsersWarning">
