@@ -269,7 +269,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     await openModal(modPage);
 
     // Enable "Include already picked users" so the viewer stays eligible after being picked.
-    await modPage.page.click(e.includePickedUsersCheckbox);
+    await modPage.page.click(e.includePickedUsersChip);
     await modPage.hasElement(
       e.pickRandomUserPickButton,
       'pick button should be visible once the attendee is an eligible viewer',

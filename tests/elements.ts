@@ -10,7 +10,12 @@ export const elements = {
   // Modal close button
   pickRandomUserModalCloseButton: '[data-test="pickRandomUserModalCloseButton"]',
 
-  // Presenter view – filter checkboxes (identified by their HTML id attributes)
+  // Presenter view – filter chips (label elements, for click and visibility checks)
+  includeModeratorsChip: '[data-test="includeModeratorsChip"]',
+  includePresenterChip: '[data-test="includePresenterChip"]',
+  includePickedUsersChip: '[data-test="includePickedUsersChip"]',
+
+  // Presenter view – filter checkboxes (hidden inputs, for isChecked / not.toBeChecked only)
   includeModeratorsCheckbox: '#includeModerators',
   includePresenterCheckbox: '#includePresenter',
   includePickedUsersCheckbox: '#includePickedUsers',

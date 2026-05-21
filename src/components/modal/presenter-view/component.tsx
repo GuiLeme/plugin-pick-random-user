@@ -207,7 +207,11 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
               {intl.formatMessage(intlMessages.filterChipsLabel)}
             </Styled.FilterLabel>
             <Styled.ChipGroup>
-              <Styled.FilterChip $active={includeModerators} htmlFor="includeModerators">
+              <Styled.FilterChip
+                $active={includeModerators}
+                htmlFor="includeModerators"
+                data-test="includeModeratorsChip"
+              >
                 <Styled.ChipInput
                   id="includeModerators"
                   type="checkbox"
@@ -220,7 +224,11 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
                 {intl.formatMessage(intlMessages.moderatorsChipLabel)}
               </Styled.FilterChip>
 
-              <Styled.FilterChip $active={includePresenter} htmlFor="includePresenter">
+              <Styled.FilterChip
+                $active={includePresenter}
+                htmlFor="includePresenter"
+                data-test="includePresenterChip"
+              >
                 <Styled.ChipInput
                   id="includePresenter"
                   type="checkbox"
@@ -233,7 +241,11 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
                 {intl.formatMessage(intlMessages.presenterChipLabel)}
               </Styled.FilterChip>
 
-              <Styled.FilterChip $active={includePickedUsers} htmlFor="includePickedUsers">
+              <Styled.FilterChip
+                $active={includePickedUsers}
+                htmlFor="includePickedUsers"
+                data-test="includePickedUsersChip"
+              >
                 <Styled.ChipInput
                   id="includePickedUsers"
                   type="checkbox"

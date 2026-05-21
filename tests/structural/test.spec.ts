@@ -119,8 +119,8 @@ test.describe('Pick Random User Plugin - Structural', () => {
   test('should open the presenter modal when clicking the action-button option', async (): Promise<void> => {
     await openPickRandomUserModal(modPage);
     await modPage.hasElement(
-      e.includeModeratorsCheckbox,
-      'should show the modal presenter view with the "Include moderators" checkbox',
+      e.includeModeratorsChip,
+      'should show the modal presenter view with the "Include moderators" chip',
     );
     await modPage.hasElement(
       e.pickRandomUserAvailableContent,
@@ -130,9 +130,9 @@ test.describe('Pick Random User Plugin - Structural', () => {
 
   test('should display all three filter checkboxes in the presenter view', async (): Promise<void> => {
     await openPickRandomUserModal(modPage);
-    await modPage.hasElement(e.includeModeratorsCheckbox, 'should display the "Include moderators" checkbox');
-    await modPage.hasElement(e.includePresenterCheckbox, 'should display the "Include presenter" checkbox');
-    await modPage.hasElement(e.includePickedUsersCheckbox, 'should display the "Include already picked user" checkbox');
+    await modPage.hasElement(e.includeModeratorsChip, 'should display the "Include moderators" chip');
+    await modPage.hasElement(e.includePresenterChip, 'should display the "Include presenter" chip');
+    await modPage.hasElement(e.includePickedUsersChip, 'should display the "Include already picked" chip');
   });
 
   test('should have all three filter checkboxes unchecked by default', async (): Promise<void> => {

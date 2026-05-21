@@ -23,15 +23,15 @@ const getPluginUrl = () => pluginUrl;
 
 /** Enable both inclusion filters so the single moderator/presenter is eligible. */
 async function enableInclusionFilters(modPage: ModPage): Promise<void> {
-  await clickToggleOnWithRetry(modPage, e.includeModeratorsCheckbox, 'includeModerators');
-  await clickToggleOnWithRetry(modPage, e.includePresenterCheckbox, 'includePresenter');
+  await clickToggleOnWithRetry(modPage, e.includeModeratorsChip, 'includeModerators', e.includeModeratorsCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePresenterChip, 'includePresenter', e.includePresenterCheckbox);
 }
 
 /** Enable all three filters (include picked users too, so "Pick again" is reachable). */
 async function enableAllFilters(modPage: ModPage): Promise<void> {
-  await clickToggleOnWithRetry(modPage, e.includeModeratorsCheckbox, 'includeModerators');
-  await clickToggleOnWithRetry(modPage, e.includePresenterCheckbox, 'includePresenter');
-  await clickToggleOnWithRetry(modPage, e.includePickedUsersCheckbox, 'includePickedUsers');
+  await clickToggleOnWithRetry(modPage, e.includeModeratorsChip, 'includeModerators', e.includeModeratorsCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePresenterChip, 'includePresenter', e.includePresenterCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePickedUsersChip, 'includePickedUsers', e.includePickedUsersCheckbox);
 }
 
 /** Pick a user and wait for the picked-user view to appear. */
