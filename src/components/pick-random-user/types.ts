@@ -18,10 +18,6 @@ export interface PickRandomUserPluginProps {
     pluginUuid: string,
 }
 
-export interface UsersMoreInformationGraphqlResponse {
-    user: PickedUser[];
-}
-
 export interface PickedUserSeenEntryDataChannel {
     pickedUserId: string;
     seenByUserId: string;

@@ -195,10 +195,6 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
       : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
   })();
 
-  const userRoleLabelSingular = (!includeModerators)
-    ? intl.formatMessage(intlMessages.viewerLabel, { 0: usersCount })
-    : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
-
   const hasPickedUsers = dataChannelPickedUsers?.some((u) => !!u.payloadJson);
 
   return (
