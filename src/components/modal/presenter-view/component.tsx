@@ -153,6 +153,8 @@ function CheckboxSquare({ active }: { active: boolean }) {
 function makePickedUserRows(list?: DataChannelEntryResponseType<PickedUser>[]) {
   return list?.filter((u) => !!u.payloadJson).map((u) => {
     const time = new Date(u.createdAt);
+    const hh = String(time.getHours()).padStart(2, '0');
+    const mm = String(time.getMinutes()).padStart(2, '0');
     const { avatar, color, name } = u.payloadJson;
     const initials = getInitials(name);
     return (
@@ -165,6 +167,7 @@ function makePickedUserRows(list?: DataChannelEntryResponseType<PickedUser>[]) {
           </Styled.UserAvatar>
         )}
         <Styled.UserNameText>{name}</Styled.UserNameText>
+        <Styled.PickedTimeText>{`${hh}:${mm}`}</Styled.PickedTimeText>
       </Styled.PickedUserRow>
     );
   });

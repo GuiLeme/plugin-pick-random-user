@@ -84,8 +84,24 @@ const UserListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  max-height: 10rem;
+  max-height: 12rem;
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 `;
 
 const UserRow = styled.div`
@@ -173,8 +189,23 @@ const PickedUserListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  max-height: 7.5rem;
   overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 `;
 
 // <ul> that test selectors target with [data-test="pickRandomUserPreviouslyPickedList"]
@@ -192,6 +223,13 @@ const PickedUserRow = styled.li`
   align-items: center;
   gap: 0.5rem;
   list-style: none;
+`;
+
+const PickedTimeText = styled.span`
+  font-size: 0.6875rem;
+  color: #A7B3C3;
+  margin-left: auto;
+  flex-shrink: 0;
 `;
 
 // ── Footer / action button ────────────────────────────────────────────────────
@@ -269,6 +307,7 @@ export {
   PickedUserListContainer,
   PickedList,
   PickedUserRow,
+  PickedTimeText,
   FooterContainer,
   PickButton,
   NoUsersWarning,
