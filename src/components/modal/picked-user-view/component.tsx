@@ -6,15 +6,15 @@ import * as Styled from './styles';
 import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
 
 const intlMessages = defineMessages({
+  resultSectionLabel: {
+    id: 'pickRandomUserPlugin.modal.pickedUserView.resultSectionLabel',
+    description: 'Section label shown above the picked user result',
+    defaultMessage: 'Result',
+  },
   currentUserPicked: {
     id: 'pickRandomUserPlugin.modal.pickedUserView.title.currentUserPicked',
     description: 'Title to show that current user has been picked',
     defaultMessage: 'You have been randomly picked',
-  },
-  randomUserPicked: {
-    id: 'pickRandomUserPlugin.modal.pickedUserView.title.randomUserPicked',
-    description: 'Title to show that random user has been picked',
-    defaultMessage: 'Randomly picked user',
   },
   backButtonLabel: {
     id: 'pickRandomUserPlugin.modal.pickedUserView.backButton.label',
@@ -71,62 +71,62 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       });
     }
   }, [pickedUserWithEntryId]);
-  const title = (pickedUserWithEntryId?.pickedUser?.userId === currentUser?.userId)
-    ? intl.formatMessage(intlMessages.currentUserPicked)
-    : intl.formatMessage(intlMessages.randomUserPicked);
-
   const avatarAltDescriptor = intl.formatMessage(intlMessages.currentUserPicked, {
     0: pickedUserWithEntryId?.pickedUser?.name,
   });
 
   return (
     <Styled.PickedUserViewWrapper>
-      <Styled.PickedUserViewTitle data-test="pickRandomUserPickedUserViewTitle">{title}</Styled.PickedUserViewTitle>
-      {
-        (pickedUserWithEntryId) ? (
-          <>
-            {avatarUrl ? (
-              <Styled.PickedUserAvatarImage
-                alt={avatarAltDescriptor}
-                src={avatarUrl}
-              />
-            ) : (
-              <Styled.PickedUserAvatarInitials
-                background={pickedUserWithEntryId?.pickedUser?.color}
-              >
-                {pickedUserWithEntryId?.pickedUser?.name.slice(0, 2)}
-              </Styled.PickedUserAvatarInitials>
+      <Styled.PickedUserViewBody>
+        <Styled.ResultSectionLabel data-test="pickRandomUserPickedUserViewTitle">
+          {intl.formatMessage(intlMessages.resultSectionLabel)}
+        </Styled.ResultSectionLabel>
+        {
+          (pickedUserWithEntryId) ? (
+            <>
+              {avatarUrl ? (
+                <Styled.PickedUserAvatarImage
+                  alt={avatarAltDescriptor}
+                  src={avatarUrl}
+                />
+              ) : (
+                <Styled.PickedUserAvatarInitials
+                  background={pickedUserWithEntryId?.pickedUser?.color}
+                >
+                  {pickedUserWithEntryId?.pickedUser?.name.slice(0, 2)}
+                </Styled.PickedUserAvatarInitials>
+              )}
+              <Styled.PickedUserName data-test="pickRandomUserPickedUserName">{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
+            </>
+          ) : null
+        }
+        {!canClose && remainingSeconds > 0 && !currentUser?.presenter && (
+          <Styled.CountdownMessage
+            data-test="countDownMessage"
+          >
+            {intl.formatMessage(
+              remainingSeconds === 1
+                ? intlMessages.modalCloseDelayMessageSingular
+                : intlMessages.modalCloseDelayMessage,
+              { seconds: Math.ceil(remainingSeconds) },
             )}
-            <Styled.PickedUserName data-test="pickRandomUserPickedUserName">{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
-          </>
-        ) : null
-      }
-      {!canClose && remainingSeconds > 0 && !currentUser?.presenter && (
-        <Styled.CountdownMessage
-          data-test="countDownMessage"
-        >
-          {intl.formatMessage(
-            remainingSeconds === 1
-              ? intlMessages.modalCloseDelayMessageSingular
-              : intlMessages.modalCloseDelayMessage,
-            { seconds: Math.ceil(remainingSeconds) },
-          )}
-        </Styled.CountdownMessage>
-      )}
-      {
-        (currentUser?.presenter) ? (
+          </Styled.CountdownMessage>
+        )}
+      </Styled.PickedUserViewBody>
+      {currentUser?.presenter && (
+        <Styled.PickedUserViewFooter>
           <Styled.BackButton type="button" data-test="pickRandomUserBackButton" onClick={handleBackToPresenterView}>
             {intl.formatMessage(intlMessages.backButtonLabel)}
           </Styled.BackButton>
-        ) : null
-      }
-      {!canClose && remainingSeconds > 0 && currentUser?.presenter && (
-        <Styled.CountdownBarContainer>
-          <Styled.CountdownBar
-            data-test="countDownProgressBar"
-            progress={progressPercentage}
-          />
-        </Styled.CountdownBarContainer>
+          {!canClose && remainingSeconds > 0 && (
+            <Styled.CountdownBarContainer>
+              <Styled.CountdownBar
+                data-test="countDownProgressBar"
+                progress={progressPercentage}
+              />
+            </Styled.CountdownBarContainer>
+          )}
+        </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>
   );

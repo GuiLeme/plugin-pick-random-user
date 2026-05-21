@@ -184,26 +184,24 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     );
   });
 
-  test('should show "You have been randomly picked" to the picked attendee and "Randomly picked user" to the presenter', async (): Promise<void> => {
+  test('should show the "Result" section label to both the picked attendee and the presenter', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
     await modPage.page.click(e.pickRandomUserPickButton);
 
-    // Attendee is the picked user → sees "You have been randomly picked".
     await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
     await attendeePage.hasText(
       e.pickRandomUserPickedUserViewTitle,
-      'You have been randomly picked',
-      'picked attendee should see the "You have been randomly picked" title',
+      'Result',
+      'picked attendee should see the "Result" section label',
     );
 
-    // Presenter sees "Randomly picked user" (different user was picked).
     await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter modal should transition to picked-user view', ELEMENT_WAIT_LONGER_TIME);
     await modPage.hasText(
       e.pickRandomUserPickedUserViewTitle,
-      'Randomly picked user',
-      'presenter should see the "Randomly picked user" title (not their own name)',
+      'Result',
+      'presenter should see the "Result" section label',
     );
   });
 

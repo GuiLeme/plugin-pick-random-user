@@ -1,4 +1,5 @@
 {
+  "pickRandomUserPlugin.modal.pickedUserView.resultSectionLabel": "Résultat",
   "pickRandomUserPlugin.modal.pickedUserView.title.currentUserPicked": "Vous avez été sélectionné au hasard",
   "pickRandomUserPlugin.modal.pickedUserView.title.randomUserPicked": "Participant sélectionné au hasard",
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "retour",

@@ -3,15 +3,31 @@ import { ModalAvatarProps } from './types';
 
 const PickedUserViewWrapper = styled.div`
   width: 100%;
-  height: 100%;
-  align-items: center;
   display: flex;
   flex-direction: column;
 `;
 
-const PickedUserViewTitle = styled.h1`
-  font-weight: 600;
-  font-size: 1.25rem;
+const PickedUserViewBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1.25rem 1rem;
+`;
+
+const PickedUserViewFooter = styled.div`
+  padding: 0 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ResultSectionLabel = styled.span`
+  font-size: 1rem;
+  font-weight: 800;
+  color: #8B9AAF;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 1rem 0;
 `;
 
 const PickedUserAvatarInitials = styled.div<ModalAvatarProps>`
@@ -25,7 +41,6 @@ const PickedUserAvatarInitials = styled.div<ModalAvatarProps>`
   color: white;
   font-size: 2.75rem;
   font-weight: 400;
-  margin-bottom: .25rem;
   text-transform: capitalize;
 `;
 
@@ -41,27 +56,25 @@ const PickedUserAvatarImage = styled.img`
 const PickedUserName = styled.p`
   font-size: 1.875rem;
   font-weight: 500;
+  margin: 1rem 0;
 `;
 
 const BackButton = styled.button`
-  border: 0.1875rem solid transparent;
-  margin-bottom: 1rem;
-  overflow: visible;
-  display: inline-block;
-  background-color: var(--btn-primary-bg, var(--color-primary, #0F70D7));
-  color: var(--btn-primary-color, var(--color-white, #FFF));
-  border-radius: 0.125rem;
+  width: 100%;
+  padding: 0.625rem 0;
+  background: #4E7FF8;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
+  font-family: inherit;
   cursor: pointer;
-  user-select: none;
-  padding: 0.5rem 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
-    color: var(--btn-primary-color, var(--color-white, #FFF));
-    background-color: var(--btn-primary-hover-bg, #0C57A7) !important;
+    background: #3D6DE0;
   }
 `;
 
@@ -96,7 +109,9 @@ const CountdownBar = styled.div<{ progress: number }>`
 
 export {
   PickedUserViewWrapper,
-  PickedUserViewTitle,
+  PickedUserViewBody,
+  PickedUserViewFooter,
+  ResultSectionLabel,
   PickedUserAvatarInitials,
   PickedUserAvatarImage,
   PickedUserName,
