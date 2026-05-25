@@ -10,25 +10,25 @@ import { PresenterViewComponentProps } from './types';
 import { FilterOptionsContext } from '../../pick-random-user/context';
 
 const intlMessages = defineMessages({
-  optionsTitle: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.title',
-    description: 'Title of the options section on modal`s presenter view',
-    defaultMessage: 'Options',
+  filterChipsLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.label',
+    description: 'Label preceding the filter chip group',
+    defaultMessage: 'Also include:',
   },
-  includeModeratorsLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel',
-    description: 'Label to include moderator`s option on modal`s presenter view',
-    defaultMessage: 'Include moderators',
+  moderatorsChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.moderators',
+    description: 'Chip label to include moderators',
+    defaultMessage: 'Moderators',
   },
-  includePresenterLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel',
-    description: 'Label of skip presenter`s option on modal`s presenter view',
-    defaultMessage: 'Skip presenter',
+  presenterChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.presenter',
+    description: 'Chip label to include presenter',
+    defaultMessage: 'Presenter',
   },
-  includePickedUsersLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel',
-    description: 'Label of include picked users option on modal`s presenter view',
-    defaultMessage: 'Include already picked user',
+  pickedUsersChipLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.filterChips.pickedUsers',
+    description: 'Chip label to include already picked users',
+    defaultMessage: 'Already picked',
   },
   availableTitle: {
     id: 'pickRandomUserPlugin.modal.presenterView.availableSection.title',
@@ -73,44 +73,105 @@ const intlMessages = defineMessages({
   pickButtonLabel: {
     id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser',
     description: 'Label of the button to pick another user',
-    defaultMessage: 'Pick {0}',
+    defaultMessage: 'Pick random user',
   },
-  pickAgainButtonLabel: {
-    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain',
-    description: 'Label of the button to pick another user',
-    defaultMessage: 'Pick again',
+  pickNextRandomUserButtonLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickNext',
+    description: 'Label of the button to pick next random user (when already picked users are included in pool)',
+    defaultMessage: 'Pick next random user',
+  },
+  pickAnotherRandomUserButtonLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAnother',
+    description: 'Label of the button to pick another random user (when already picked users are excluded)',
+    defaultMessage: 'Pick another random user',
+  },
+  emptyState: {
+    id: 'pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.emptyState',
+    description: 'Empty state text shown when no user has been picked yet',
+    defaultMessage: 'No user selected yet',
+  },
+  availableEmptyState: {
+    id: 'pickRandomUserPlugin.modal.presenterView.availableSection.emptyState',
+    description: 'Empty state text shown when no user is available for selection',
+    defaultMessage: 'No {0} available for selection',
+  },
+  moderatorRoleLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.roleLabel.moderator',
+    description: 'Role badge label for moderators',
+    defaultMessage: 'moderator',
+  },
+  presenterRoleLabel: {
+    id: 'pickRandomUserPlugin.modal.presenterView.roleLabel.presenter',
+    description: 'Role badge label for presenters',
+    defaultMessage: 'presenter',
   },
 });
 
-const MAX_NAMES_TO_SHOW = 3;
+const FALLBACK_AVATAR_COLORS = ['#4E7FF8', '#2BA084', '#E07A3A', '#7B61D9', '#D4733B'];
 
-const makeHorizontalListOfNames = (list?: PickedUser[]) => {
-  const length = list?.length;
-  const formattedList = list?.filter((_, index) => {
-    if (length > MAX_NAMES_TO_SHOW) return index < MAX_NAMES_TO_SHOW;
-    return true;
-  }).reduce((accumulator, currentValue) => ((accumulator !== '') ? `${accumulator}, ${currentValue.name}` : currentValue.name), '');
-  if (length > MAX_NAMES_TO_SHOW) return `${formattedList}...`;
-  return formattedList;
-};
+function getAvatarColorFallback(name: string): string {
+  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return FALLBACK_AVATAR_COLORS[hash % FALLBACK_AVATAR_COLORS.length];
+}
 
-const makeVerticalListOfNames = (
-  list?: DataChannelEntryResponseType<PickedUser>[],
-) => list?.filter((u) => !!u.payloadJson).map((u) => {
-  const time = new Date(u.createdAt);
-  const timeMiliseconds = time.getTime();
+function getInitials(name: string): string {
+  return name.slice(0, 2);
+}
+
+function CheckboxSquare({ active }: { active: boolean }) {
+  const style: React.CSSProperties = active ? {
+    width: '0.875rem',
+    height: '0.875rem',
+    borderRadius: '3px',
+    background: '#4E7FF8',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  } : {
+    width: '0.875rem',
+    height: '0.875rem',
+    borderRadius: '3px',
+    background: '#fff',
+    border: '1.5px solid #C0C8D4',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  };
   return (
-    <li key={`${u.payloadJson.userId}-${timeMiliseconds}`}>
-      {u.payloadJson.name}
-      {' '}
-      (
-      {time.getHours().toString().padStart(2, '0')}
-      :
-      {time.getMinutes().toString().padStart(2, '0')}
-      )
-    </li>
+    <span style={style}>
+      {active && (
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      )}
+    </span>
   );
-});
+}
+
+function makePickedUserRows(list?: DataChannelEntryResponseType<PickedUser>[]) {
+  return list?.filter((u) => !!u.payloadJson).map((u) => {
+    const time = new Date(u.createdAt);
+    const hh = String(time.getHours()).padStart(2, '0');
+    const mm = String(time.getMinutes()).padStart(2, '0');
+    const { avatar, color, name } = u.payloadJson;
+    const initials = getInitials(name);
+    return (
+      <Styled.PickedUserRow key={`${u.payloadJson.userId}-${time.getTime()}`}>
+        {avatar ? (
+          <Styled.UserAvatarImage src={avatar} alt={name} />
+        ) : (
+          <Styled.UserAvatar $color={color || getAvatarColorFallback(name)}>
+            {initials}
+          </Styled.UserAvatar>
+        )}
+        <Styled.UserNameText>{name}</Styled.UserNameText>
+        <Styled.PickedTimeText>{`${hh}:${mm}`}</Styled.PickedTimeText>
+      </Styled.PickedUserRow>
+    );
+  });
+}
 
 export function PresenterViewComponent(props: PresenterViewComponentProps) {
   const {
@@ -122,144 +183,191 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     users,
   } = props;
 
-  const {
-    filterOptions,
-    setFilterOptions,
-  } = useContext(FilterOptionsContext);
+  const { filterOptions, setFilterOptions } = useContext(FilterOptionsContext);
+  const { includeModerators, includePresenter, includePickedUsers } = filterOptions;
 
-  const {
-    includeModerators,
-    includePresenter,
-    includePickedUsers,
-  } = filterOptions;
+  const usersCount = users?.length ?? 0;
+  const userRoleLabel = (() => {
+    if (!includeModerators) {
+      return usersCount !== 1
+        ? intl.formatMessage(intlMessages.viewerLabelPlural, { 0: usersCount })
+        : intl.formatMessage(intlMessages.viewerLabel, { 0: usersCount });
+    }
+    return usersCount !== 1
+      ? intl.formatMessage(intlMessages.userLabelPlural, { 0: usersCount })
+      : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
+  })();
 
-  let userRoleLabel: string;
-  const usersCountVariable = { 0: users?.length };
-  if (!includeModerators) {
-    userRoleLabel = (users?.length !== 1)
-      ? intl.formatMessage(intlMessages.viewerLabelPlural, usersCountVariable)
-      : intl.formatMessage(intlMessages.viewerLabel, usersCountVariable);
-  } else {
-    userRoleLabel = (users?.length !== 1)
-      ? intl.formatMessage(intlMessages.userLabelPlural, usersCountVariable)
-      : intl.formatMessage(intlMessages.userLabel, usersCountVariable);
-  }
+  const hasPickedUsers = dataChannelPickedUsers?.some((u) => !!u.payloadJson);
+
   return (
-    <Styled.PresenterViewContentWrapper>
-      <Styled.PresenterViewSectionWrapper>
-        <Styled.PresenterViewSectionTitle>
-          {intl.formatMessage(intlMessages.optionsTitle)}
-        </Styled.PresenterViewSectionTitle>
-        <Styled.PresenterViewSectionContent>
-          <Styled.CheckboxLabelWrapper htmlFor="includeModerators">
-            <input
-              type="checkbox"
-              id="includeModerators"
-              checked={includeModerators}
-              onChange={() => {
-                setFilterOptions((filterOptionsPrevious) => ({
-                  ...filterOptionsPrevious,
-                  includeModerators: !filterOptionsPrevious.includeModerators,
-                }));
-              }}
-              name="options"
-              value="includeModerators"
-            />
-            <Styled.CheckboxLabel>
-              {intl.formatMessage(intlMessages.includeModeratorsLabel)}
-            </Styled.CheckboxLabel>
-          </Styled.CheckboxLabelWrapper>
-          <Styled.CheckboxLabelWrapper htmlFor="includePresenter">
-            <input
-              type="checkbox"
-              id="includePresenter"
-              checked={includePresenter}
-              onChange={() => {
-                setFilterOptions((filterOptionsPrevious) => ({
-                  ...filterOptionsPrevious,
-                  includePresenter: !filterOptionsPrevious.includePresenter,
-                }));
-              }}
-              name="options"
-              value="includePresenter"
-            />
-            <Styled.CheckboxLabel>
-              {intl.formatMessage(intlMessages.includePresenterLabel)}
-            </Styled.CheckboxLabel>
-          </Styled.CheckboxLabelWrapper>
-          <Styled.CheckboxLabelWrapper htmlFor="includePickedUsers">
-            <input
-              type="checkbox"
-              id="includePickedUsers"
-              checked={includePickedUsers}
-              onChange={() => {
-                setFilterOptions((filterOptionsPrevious) => ({
-                  ...filterOptionsPrevious,
-                  includePickedUsers: !filterOptionsPrevious.includePickedUsers,
-                }));
-              }}
-              name="options"
-              value="includePickedUsers"
-            />
-            <Styled.CheckboxLabel>
-              {intl.formatMessage(intlMessages.includePickedUsersLabel)}
-            </Styled.CheckboxLabel>
-          </Styled.CheckboxLabelWrapper>
-        </Styled.PresenterViewSectionContent>
-      </Styled.PresenterViewSectionWrapper>
-      <Styled.PresenterViewSectionWrapper>
-        <Styled.PresenterViewSectionTitle>
-          {intl.formatMessage(intlMessages.availableTitle)}
-        </Styled.PresenterViewSectionTitle>
-        <Styled.PresenterViewSectionContent data-test="pickRandomUserAvailableContent">
-          {`${users?.length} ${userRoleLabel}: `}
-          {makeHorizontalListOfNames(users)}
-        </Styled.PresenterViewSectionContent>
-      </Styled.PresenterViewSectionWrapper>
-      <Styled.PresenterViewSectionWrapper>
-        <Styled.PresenterViewSectionTitleWrapper>
-          <Styled.PresenterViewSectionTitle>
-            {intl.formatMessage(intlMessages.previouslyPickedTitle)}
-          </Styled.PresenterViewSectionTitle>
-          <Styled.PresenterViewSectionClearAllButton
-            type="button"
-            data-test="pickRandomUserClearAllButton"
-            onClick={() => {
-              deletionFunction([RESET_DATA_CHANNEL]);
-            }}
-          >
-            {intl.formatMessage(intlMessages.clearButtonLabel)}
-          </Styled.PresenterViewSectionClearAllButton>
-        </Styled.PresenterViewSectionTitleWrapper>
-        <Styled.PresenterViewSectionListWrapper>
-          <Styled.PresenterViewSectionList data-test="pickRandomUserPreviouslyPickedList">
-            {
-              makeVerticalListOfNames(dataChannelPickedUsers)
-            }
-          </Styled.PresenterViewSectionList>
-        </Styled.PresenterViewSectionListWrapper>
-      </Styled.PresenterViewSectionWrapper>
-      {
-        users?.length > 0 ? (
-          <Styled.PickUserButton
+    <Styled.PresenterViewWrapper>
+      <Styled.ContentPadding>
+
+        {/* FILTER CHIPS */}
+        <Styled.OptionsSection>
+          <Styled.FilterRow>
+            <Styled.FilterLabel>
+              {intl.formatMessage(intlMessages.filterChipsLabel)}
+            </Styled.FilterLabel>
+            <Styled.ChipGroup>
+              <Styled.FilterChip
+                $active={includeModerators}
+                htmlFor="includeModerators"
+                data-test="includeModeratorsChip"
+              >
+                <Styled.ChipInput
+                  id="includeModerators"
+                  type="checkbox"
+                  checked={includeModerators}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includeModerators: !prev.includeModerators,
+                  }))}
+                />
+                <CheckboxSquare active={includeModerators} />
+                {intl.formatMessage(intlMessages.moderatorsChipLabel)}
+              </Styled.FilterChip>
+
+              <Styled.FilterChip
+                $active={includePresenter}
+                htmlFor="includePresenter"
+                data-test="includePresenterChip"
+              >
+                <Styled.ChipInput
+                  id="includePresenter"
+                  type="checkbox"
+                  checked={includePresenter}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includePresenter: !prev.includePresenter,
+                  }))}
+                />
+                <CheckboxSquare active={includePresenter} />
+                {intl.formatMessage(intlMessages.presenterChipLabel)}
+              </Styled.FilterChip>
+
+              <Styled.FilterChip
+                $active={includePickedUsers}
+                htmlFor="includePickedUsers"
+                data-test="includePickedUsersChip"
+              >
+                <Styled.ChipInput
+                  id="includePickedUsers"
+                  type="checkbox"
+                  checked={includePickedUsers}
+                  onChange={() => setFilterOptions((prev) => ({
+                    ...prev, includePickedUsers: !prev.includePickedUsers,
+                  }))}
+                />
+                <CheckboxSquare active={includePickedUsers} />
+                {intl.formatMessage(intlMessages.pickedUsersChipLabel)}
+              </Styled.FilterChip>
+            </Styled.ChipGroup>
+          </Styled.FilterRow>
+        </Styled.OptionsSection>
+
+        {/* AVAILABLE USERS SECTION */}
+        <Styled.AvailableSection>
+          <Styled.SectionHeaderRow data-test="pickRandomUserAvailableContent">
+            <Styled.SectionLabel>
+              {intl.formatMessage(intlMessages.availableTitle)}
+            </Styled.SectionLabel>
+            <Styled.CountBadge>
+              {usersCount}
+              {' '}
+              {userRoleLabel}
+            </Styled.CountBadge>
+          </Styled.SectionHeaderRow>
+          {usersCount === 0 ? (
+            <Styled.EmptyStateContainer>
+              <Styled.EmptyStateText>
+                {intl.formatMessage(intlMessages.availableEmptyState, { 0: userRoleLabel })}
+              </Styled.EmptyStateText>
+            </Styled.EmptyStateContainer>
+          ) : (
+            <Styled.UserListContainer>
+              {users?.map((user) => {
+                const initials = getInitials(user.name);
+                let roleBadgeLabel: string | null = null;
+                if (user.role === 'MODERATOR') {
+                  roleBadgeLabel = intl.formatMessage(intlMessages.moderatorRoleLabel);
+                } else if (user.presenter) {
+                  roleBadgeLabel = intl.formatMessage(intlMessages.presenterRoleLabel);
+                }
+                return (
+                  <Styled.UserRow key={user.userId}>
+                    {user.avatar ? (
+                      <Styled.UserAvatarImage src={user.avatar} alt={user.name} />
+                    ) : (
+                      <Styled.UserAvatar $color={user.color || getAvatarColorFallback(user.name)}>
+                        {initials}
+                      </Styled.UserAvatar>
+                    )}
+                    <Styled.UserNameText>{user.name}</Styled.UserNameText>
+                    {roleBadgeLabel && (
+                      <Styled.RoleBadge>{roleBadgeLabel}</Styled.RoleBadge>
+                    )}
+                  </Styled.UserRow>
+                );
+              })}
+            </Styled.UserListContainer>
+          )}
+        </Styled.AvailableSection>
+
+        {/* PREVIOUSLY PICKED SECTION */}
+        <Styled.PreviouslyPickedSection>
+          <Styled.SectionHeaderRow>
+            <Styled.SectionLabel>
+              {intl.formatMessage(intlMessages.previouslyPickedTitle)}
+            </Styled.SectionLabel>
+            <Styled.ClearAllButton
+              type="button"
+              data-test="pickRandomUserClearAllButton"
+              onClick={() => deletionFunction([RESET_DATA_CHANNEL])}
+            >
+              {intl.formatMessage(intlMessages.clearButtonLabel)}
+            </Styled.ClearAllButton>
+          </Styled.SectionHeaderRow>
+          {hasPickedUsers ? (
+            <Styled.PickedUserListContainer>
+              <Styled.PickedList data-test="pickRandomUserPreviouslyPickedList">
+                {makePickedUserRows(dataChannelPickedUsers)}
+              </Styled.PickedList>
+            </Styled.PickedUserListContainer>
+          ) : (
+            <>
+              <Styled.EmptyStateContainer>
+                <Styled.EmptyStateText>
+                  {intl.formatMessage(intlMessages.emptyState)}
+                </Styled.EmptyStateText>
+              </Styled.EmptyStateContainer>
+              {/* Empty list kept in DOM so [data-test] li selectors resolve correctly */}
+              <Styled.PickedList data-test="pickRandomUserPreviouslyPickedList" />
+            </>
+          )}
+        </Styled.PreviouslyPickedSection>
+
+      </Styled.ContentPadding>
+
+      {/* FOOTER */}
+      <Styled.FooterContainer>
+        {usersCount > 0 ? (
+          <Styled.PickButton
             type="button"
             data-test="pickRandomUserPickButton"
-            onClick={() => {
-              handlePickRandomUser();
-            }}
+            onClick={handlePickRandomUser}
           >
-            {
-            (pickedUserWithEntryId)
-              ? intl.formatMessage(intlMessages.pickAgainButtonLabel)
-              : intl.formatMessage(intlMessages.pickButtonLabel, { 0: userRoleLabel })
-            }
-          </Styled.PickUserButton>
+            {pickedUserWithEntryId
+              ? intl.formatMessage(includePickedUsers
+                ? intlMessages.pickNextRandomUserButtonLabel
+                : intlMessages.pickAnotherRandomUserButtonLabel)
+              : intl.formatMessage(intlMessages.pickButtonLabel)}
+          </Styled.PickButton>
         ) : (
-          <p data-test="pickRandomUserNoUsersWarning">
+          <Styled.NoUsersWarning data-test="pickRandomUserNoUsersWarning">
             {intl.formatMessage(intlMessages.noUsersWarning, { 0: userRoleLabel })}
-          </p>
-        )
-      }
-    </Styled.PresenterViewContentWrapper>
+          </Styled.NoUsersWarning>
+        )}
+      </Styled.FooterContainer>
+    </Styled.PresenterViewWrapper>
   );
 }

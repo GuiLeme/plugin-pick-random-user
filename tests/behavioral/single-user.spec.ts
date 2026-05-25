@@ -1,14 +1,18 @@
 /**
  * Behavioural tests – single user (moderator / presenter only).
  */
-import { test, BrowserContext } from '@playwright/test';
+import {
+  test, BrowserContext, Browser, APIRequestContext, TestInfo,
+} from '@playwright/test';
 import { checkPluginAvailability } from '../core/fixtures/pluginBeforeAll';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../elements';
 import { SessionPage as ModPage } from '../core/sessionPage';
 import { Plugin } from '../core/plugin';
 import { encodeCustomParams } from '../core/helpers';
-import { goBackToPresenterView, openModal, moderatorCleanupAfterTest } from './helpers';
+import {
+  goBackToPresenterView, openModal, moderatorCleanupAfterTest, clickToggleOnWithRetry,
+} from './helpers';
 
 const PLUGIN_NAME = 'pick-random-user-plugin';
 const ENV_VAR_NAME = 'PICK_RANDOM_USER_PLUGIN_URL';
@@ -19,25 +23,15 @@ const getPluginUrl = () => pluginUrl;
 
 /** Enable both inclusion filters so the single moderator/presenter is eligible. */
 async function enableInclusionFilters(modPage: ModPage): Promise<void> {
-  await modPage.page.click(e.includeModeratorsCheckbox);
-  await modPage.page.click(e.includePresenterCheckbox);
-  await modPage.hasElement(
-    e.pickRandomUserPickButton,
-    'pick button should appear after enabling both inclusion filters',
-    ELEMENT_WAIT_LONGER_TIME,
-  );
+  await clickToggleOnWithRetry(modPage, e.includeModeratorsChip, 'includeModerators', e.includeModeratorsCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePresenterChip, 'includePresenter', e.includePresenterCheckbox);
 }
 
 /** Enable all three filters (include picked users too, so "Pick again" is reachable). */
 async function enableAllFilters(modPage: ModPage): Promise<void> {
-  await modPage.page.click(e.includeModeratorsCheckbox);
-  await modPage.page.click(e.includePresenterCheckbox);
-  await modPage.page.click(e.includePickedUsersCheckbox);
-  await modPage.hasElement(
-    e.pickRandomUserPickButton,
-    'pick button should appear after enabling all filters',
-    ELEMENT_WAIT_LONGER_TIME,
-  );
+  await clickToggleOnWithRetry(modPage, e.includeModeratorsChip, 'includeModerators', e.includeModeratorsCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePresenterChip, 'includePresenter', e.includePresenterCheckbox);
+  await clickToggleOnWithRetry(modPage, e.includePickedUsersChip, 'includePickedUsers', e.includePickedUsersCheckbox);
 }
 
 /** Pick a user and wait for the picked-user view to appear. */
@@ -54,14 +48,16 @@ async function cleanupAfterTest(modPage: ModPage) {
   await moderatorCleanupAfterTest(modPage);
 }
 
+const ISOLATED = process.env.TEST_MEETINGS === 'isolated';
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
-  test.describe.configure({ mode: 'serial' });
+  test.describe.configure({ mode: ISOLATED ? 'default' : 'serial' });
 
   let modPage: ModPage;
   let sharedContext: BrowserContext;
 
-  test.beforeAll(async ({ browser, request }, testInfo) => {
+  async function setupMeeting(browser: Browser, request: APIRequestContext, testInfo: TestInfo) {
     await checkPluginAvailability({
       pluginName: PLUGIN_NAME,
       envVarName: ENV_VAR_NAME,
@@ -83,17 +79,28 @@ test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
     const plugin = new Plugin({ browser, context: sharedContext });
     await plugin.initModPage(page, { createParameter });
     modPage = plugin.modPage;
-  });
+  }
 
-  test.afterAll(async () => {
-    await sharedContext?.close();
-  });
+  if (ISOLATED) {
+    test.beforeEach(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterEach(async () => {
+      await sharedContext?.close();
+    });
+  } else {
+    test.beforeAll(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterAll(async () => {
+      await sharedContext?.close();
+    });
+    test.afterEach(async () => {
+      if (modPage) await cleanupAfterTest(modPage);
+    });
+  }
 
-  test.afterEach(async () => {
-    if (modPage) await cleanupAfterTest(modPage);
-  });
-
-  test('should show "Pick again" button (not "Pick user") after navigating back from picked-user view', async (): Promise<void> => {
+  test('should show "Pick next random user" button (not "Pick random user") after navigating back from picked-user view when includePickedUsers is enabled', async (): Promise<void> => {
     // With "Include already picked users" ON the presenter stays in the pool
     // after being picked, so the pick button remains visible on return.
     await openModal(modPage);
@@ -107,8 +114,8 @@ test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
     );
     await modPage.hasText(
       e.pickRandomUserPickButton,
-      'Pick again',
-      'button label should read "Pick again" after a user has already been picked',
+      'Pick next random user',
+      'button label should read "Pick next random user" after a user has already been picked (includePickedUsers is enabled)',
     );
   });
 

@@ -1,13 +1,12 @@
-import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk';
+import { DataChannelEntryResponseType, UsersBasicInfoResponseFromGraphqlWrapper } from 'bigbluebutton-html-plugin-sdk';
 import {
   FilterOptionsType,
   PickedUser,
-  UsersMoreInformationGraphqlResponse,
 } from './types';
 import { Role } from './enums';
 
 export const filterPossibleUsersToBePicked = (
-  allUsers: UsersMoreInformationGraphqlResponse,
+  allUsers: UsersBasicInfoResponseFromGraphqlWrapper | undefined,
   pickedUserFromDataChannel: DataChannelEntryResponseType<PickedUser>[],
   filterOptions: FilterOptionsType,
 ) => ({
@@ -24,5 +23,5 @@ export const filterPossibleUsersToBePicked = (
       ) === -1;
     }
     return true;
-  }),
+  }) || [],
 });

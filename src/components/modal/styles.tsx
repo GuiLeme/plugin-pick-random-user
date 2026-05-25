@@ -9,18 +9,13 @@ const PluginModal = styled(ReactModal)`
   outline-style: solid;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7);
   background-color: #fff !important;
-  max-width: 60vw;
-  max-height: 80vh;
-  border-radius: 0.2rem;
-  overflow: auto;
-  overflow-y: hidden;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
-  background-attachment: local, local, scroll, scroll;
+  width: 25rem;
+  max-width: 95vw;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -38,45 +33,48 @@ const PluginModal = styled(ReactModal)`
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.5);
   }
-  &::-webkit-scrollbar-thumb:active {
-    background: rgba(0, 0, 0, 0.25);
-  }
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.1);
     border: none;
     border-radius: 50px;
   }
   &::-webkit-scrollbar-corner {
     background: transparent;
   }
+`;
 
-  @media only screen and (max-width: 40em) {
-    max-width: 95vw;
-  }
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.875rem;
+  border-bottom: 1px solid #E8EDF2;
+  flex-shrink: 0;
+`;
 
-  @media only screen and (min-width: 40.063em) {
-    max-width: 80vw;
-  }
+const ModalTitle = styled.span`
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: #1C2B3A;
 `;
 
 const CloseButton = styled.button`
-  font-size: 40px;
+  font-size: 1rem;
   background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  outline: inherit;
+  color: #8B9AAF;
   border: none;
-  &:hover {
-    background-color: #EEE;
-  }
-`;
-
-const CloseButtonWrapper = styled.div`
-  width: 100%;
-  align-items: flex-end;
+  cursor: pointer;
+  padding: 0.25rem;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  line-height: 1;
+
+  &:hover {
+    background-color: #EEF2F8;
+    color: #1C2B3A;
+  }
 `;
 
 const CountdownMessage = styled.div`
@@ -93,5 +91,5 @@ const CountdownMessage = styled.div`
 `;
 
 export {
-  PluginModal, CloseButton, CloseButtonWrapper, CountdownMessage,
+  PluginModal, ModalHeader, ModalTitle, CloseButton, CountdownMessage,
 };

@@ -13,6 +13,16 @@ const intlMessages = defineMessages({
     description: 'Title to show that current user has been picked',
     defaultMessage: 'You have been randomly picked',
   },
+  modalTitle: {
+    id: 'pickRandomUserPlugin.modal.title',
+    description: 'Title of the pick random user modal',
+    defaultMessage: 'Pick random user',
+  },
+  closeButtonAriaLabel: {
+    id: 'pickRandomUserPlugin.modal.closeButton.ariaLabel',
+    description: 'Aria label for the modal close button',
+    defaultMessage: 'Close',
+  },
 });
 
 export function PickUserModal(props: PickUserModalProps) {
@@ -80,18 +90,19 @@ export function PickUserModal(props: PickUserModalProps) {
       shouldCloseOnOverlayClick={canClose}
       shouldCloseOnEsc={canClose}
     >
-      <Styled.CloseButtonWrapper>
+      <Styled.ModalHeader>
+        <Styled.ModalTitle>
+          {intl.formatMessage(intlMessages.modalTitle)}
+        </Styled.ModalTitle>
         <Styled.CloseButton
           type="button"
           onClick={handleCloseModal}
-          aria-label="Close button"
+          aria-label={intl.formatMessage(intlMessages.closeButtonAriaLabel)}
           data-test="pickRandomUserModalCloseButton"
         >
-          <i
-            className="icon-bbb-close"
-          />
+          <i className="icon-bbb-close" />
         </Styled.CloseButton>
-      </Styled.CloseButtonWrapper>
+      </Styled.ModalHeader>
       {
         showPresenterView
           ? (
@@ -121,7 +132,6 @@ export function PickUserModal(props: PickUserModalProps) {
               }}
             />
           )
-
       }
     </Styled.PluginModal>
   );

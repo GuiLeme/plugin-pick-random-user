@@ -1,4 +1,5 @@
 {
+  "pickRandomUserPlugin.modal.pickedUserView.resultSectionLabel": "Ergebnis",
   "pickRandomUserPlugin.modal.pickedUserView.title.currentUserPicked": "Sie wurden zufällig ausgewählt",
   "pickRandomUserPlugin.modal.pickedUserView.title.randomUserPicked": "Zufällig gewählter Teilnehmer",
   "pickRandomUserPlugin.modal.pickedUserView.backButton.label": "zurück",
@@ -7,6 +8,10 @@
   "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "Moderatoren einbeziehen",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "Präsentator einbeziehen",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePickedUsersLabel": "Wähle bereits gewählte Teilnehmer",
+  "pickRandomUserPlugin.modal.presenterView.filterChips.label": "Auch einbeziehen:",
+  "pickRandomUserPlugin.modal.presenterView.filterChips.moderators": "Moderatoren",
+  "pickRandomUserPlugin.modal.presenterView.filterChips.presenter": "Präsentator",
+  "pickRandomUserPlugin.modal.presenterView.filterChips.pickedUsers": "Bereits gewählt",
   "pickRandomUserPlugin.modal.presenterView.availableSection.title": "Zur Auswahl stehen",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabel": "Teilnehmer",
   "pickRandomUserPlugin.modal.presenterView.availableSection.userLabelPlural": "Teilnehmer",
@@ -15,8 +20,15 @@
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.title": "Zuvor gewählt",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.clearButtonLabel": "Alle löschen",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.noUsersWarning": "Keine {0} zum Auswählen verfügbar",
-  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser": "Wähle {0}",
-  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAgain": "Wähle erneut",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickUser": "Wähle zufälligen Teilnehmer",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickNext": "Nächsten zufälligen Teilnehmer wählen",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.pickButtonLabel.pickAnother": "Anderen zufälligen Teilnehmer wählen",
   "pickRandomUserPlugin.actionsButtonDropdown.label.pickUser": "Wähle zufälligen Teilnehmer",
-  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Zeige zuletzt gewählten Teilnehmer"
+  "pickRandomUserPlugin.actionsButtonDropdown.label.viewLastPickedUser": "Zeige zuletzt gewählten Teilnehmer",
+  "pickRandomUserPlugin.modal.title": "Zufälligen Teilnehmer wählen",
+  "pickRandomUserPlugin.modal.closeButton.ariaLabel": "Schließen",
+  "pickRandomUserPlugin.modal.presenterView.availableSection.emptyState": "Keine {0} zur Auswahl verfügbar",
+  "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.emptyState": "Noch kein Teilnehmer ausgewählt",
+  "pickRandomUserPlugin.modal.presenterView.roleLabel.moderator": "Moderator",
+  "pickRandomUserPlugin.modal.presenterView.roleLabel.presenter": "Präsentator"
 }
