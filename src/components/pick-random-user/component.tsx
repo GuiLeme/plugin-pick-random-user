@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
-import { BbbPluginSdk, PluginApi, RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
+import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
   useControlModalState,
   useGetAllSettings,
   useGetCurrentPickedUser,
-  useGetFilterOptions,
   useRequestPermissionForNotification,
 } from './hooks';
 import {
@@ -14,10 +13,8 @@ import {
   PickedUserSeenEntryDataChannel,
   PickedUser,
 } from './types';
-import { FilterOptionsContext } from './context';
 import { PickUserModal } from '../modal/component';
 import ActionButtonDropdownManager from '../extensible-areas/action-button-dropdown/component';
-import { filterPossibleUsersToBePicked } from './utils';
 import { useGetInternationalization } from '../../commons/hooks';
 
 function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
@@ -36,10 +33,6 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const currentUserInfo = pluginApi.useCurrentUser();
   const shouldUnmountPlugin = pluginApi.useShouldUnmountPlugin();
   const { data: currentUser } = currentUserInfo;
-  const allUsersInfo = pluginApi?.useUsersBasicInfo
-    ? pluginApi?.useUsersBasicInfo()
-    : { data: undefined as undefined };
-  const { data: allUsers } = allUsersInfo;
 
   const {
     intl,
@@ -48,39 +41,16 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
 
   const {
     data: pickedUserFromDataChannelResponse,
-    pushEntry: pushPickedUser,
     deleteEntry: deletePickedUser,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
   const pickedUserFromDataChannel = pickedUserFromDataChannelResponse?.data;
-
-  const [filterOptions, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter);
 
   const currentPickedUser = useGetCurrentPickedUser(pickedUserFromDataChannel);
 
   const {
     data: pickedUserSeenEntries,
     pushEntry: pushPickedUserSeen,
-    deleteEntry: deletePickedUserSeenEntries,
   } = pluginApi.useDataChannel<PickedUserSeenEntryDataChannel>('pickedUserSeenEntry');
-
-  const possibleUsersToBePicked = filterPossibleUsersToBePicked(
-    allUsers,
-    pickedUserFromDataChannel,
-    filterOptions,
-  );
-
-  const handlePickRandomUser = () => {
-    if (
-      possibleUsersToBePicked
-      && possibleUsersToBePicked.user.length > 0
-      && currentUser?.presenter
-    ) {
-      deletePickedUserSeenEntries([RESET_DATA_CHANNEL]);
-      const randomIndex = Math.floor(Math.random() * possibleUsersToBePicked.user.length);
-      const randomlyPickedUser = possibleUsersToBePicked.user[randomIndex];
-      pushPickedUser(randomlyPickedUser);
-    }
-  };
 
   const handleCloseModal = (): void => {
     setShowModal(false);
@@ -95,14 +65,6 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
     setShowModal,
   );
 
-  const value = useMemo(
-    () => ({
-      filterOptions,
-      setFilterOptions,
-    }),
-    [filterOptions, setFilterOptions],
-  );
-
   useEffect(() => {
     if (!currentUser?.presenter) handleCloseModal();
   }, [currentUser]);
@@ -111,27 +73,22 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
 
   return !shouldUnmountPlugin && (
     <>
-      <FilterOptionsContext.Provider
-        value={value}
-      >
-        <PickUserModal
-          {...{
-            uuid,
-            pickRandomUserSettings,
-            intl,
-            showModal,
-            handleCloseModal,
-            users: possibleUsersToBePicked?.user,
-            currentPickedUser,
-            handlePickRandomUser,
-            currentUser,
-            dataChannelPickedUsers: pickedUserFromDataChannel,
-            deletionFunction: deletePickedUser,
-            pickedUserSeenEntries,
-            pushPickedUserSeen,
-          }}
-        />
-      </FilterOptionsContext.Provider>
+      <PickUserModal
+        {...{
+          uuid,
+          pluginApi,
+          pickRandomUserSettings,
+          intl,
+          showModal,
+          handleCloseModal,
+          currentPickedUser,
+          currentUser,
+          dataChannelPickedUsers: pickedUserFromDataChannel,
+          deletionFunction: deletePickedUser,
+          pickedUserSeenEntries,
+          pushPickedUserSeen,
+        }}
+      />
       <ActionButtonDropdownManager
         {...{
           intl,

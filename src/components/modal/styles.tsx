@@ -12,6 +12,7 @@ const PluginModal = styled(ReactModal)`
   background-color: #fff !important;
   width: 25rem;
   max-width: 95vw;
+  max-height: 90vh;
   border-radius: 0.5rem;
   box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
   overflow: hidden;

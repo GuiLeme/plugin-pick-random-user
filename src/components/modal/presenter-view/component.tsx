@@ -2,12 +2,11 @@ import * as React from 'react';
 import { RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { defineMessages } from 'react-intl';
-import { useContext } from 'react';
 
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
-import { FilterOptionsContext } from '../../pick-random-user/context';
+import { useGetFilterOptions, useGetPickRandomUserFunction, useGetPossibleUsersToBePicked } from './hooks';
 
 const intlMessages = defineMessages({
   filterChipsLabel: {
@@ -177,16 +176,29 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
   const {
     intl,
     deletionFunction,
-    handlePickRandomUser,
     dataChannelPickedUsers,
     pickedUserWithEntryId,
-    users,
+    pluginApi,
   } = props;
 
-  const { filterOptions, setFilterOptions } = useContext(FilterOptionsContext);
-  const { includeModerators, includePresenter, includePickedUsers } = filterOptions;
+  const currentUserInfo = pluginApi.useCurrentUser();
+  const { data: currentUser } = currentUserInfo;
 
-  const usersCount = users?.length ?? 0;
+  const [{
+    includeModerators,
+    includePresenter,
+    includePickedUsers,
+  }, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter);
+
+  const usersToBePicked = useGetPossibleUsersToBePicked(pluginApi, {
+    includeModerators,
+    includePresenter,
+    includePickedUsers,
+  });
+
+  const handlePickRandomUser = useGetPickRandomUserFunction(pluginApi, usersToBePicked);
+
+  const usersCount = usersToBePicked?.length ?? 0;
   const userRoleLabel = (() => {
     if (!includeModerators) {
       return usersCount !== 1
@@ -285,7 +297,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             </Styled.EmptyStateContainer>
           ) : (
             <Styled.UserListContainer>
-              {users?.map((user) => {
+              {usersToBePicked?.map((user) => {
                 const initials = getInitials(user.name);
                 let roleBadgeLabel: string | null = null;
                 if (user.role === 'MODERATOR') {

@@ -182,30 +182,7 @@ const EmptyStateText = styled.span`
   color: #A7B3C3;
 `;
 
-const PickedUserListContainer = styled.div`
-  background: #F7F9FB;
-  border-radius: 0.375rem;
-  padding: 0.625rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 999px;
-  }
-  &::-webkit-scrollbar-button {
-    display: none;
-  }
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+const PickedUserListContainer = styled(UserListContainer)`
 `;
 
 // <ul> that test selectors target with [data-test="pickRandomUserPreviouslyPickedList"]

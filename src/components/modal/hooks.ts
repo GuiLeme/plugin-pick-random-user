@@ -67,7 +67,7 @@ export const useHandleCurrentUserNotification = (
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
-  currentPickedUser: PickedUserWithEntryId,
+  currentPickedUser: PickedUserWithEntryId | null,
   pickRandomUserSettings: PickRandomUserSettings,
   notificationMessage: string,
 ) => {
@@ -94,7 +94,7 @@ export const usePreventCloseModalCountdown = (
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
-  currentPickedUser: PickedUserWithEntryId,
+  currentPickedUser: PickedUserWithEntryId | null,
   pickRandomUserSettings: PickRandomUserSettings,
 ) => {
   const { preventCloseDelaySeconds } = pickRandomUserSettings;

@@ -28,12 +28,11 @@ const intlMessages = defineMessages({
 export function PickUserModal(props: PickUserModalProps) {
   const {
     pickRandomUserSettings,
+    pluginApi,
     intl,
     showModal,
     handleCloseModal,
-    users,
     currentPickedUser,
-    handlePickRandomUser,
     currentUser,
     dataChannelPickedUsers,
     deletionFunction,
@@ -56,9 +55,10 @@ export function PickUserModal(props: PickUserModalProps) {
     intl.formatMessage(intlMessages.currentUserPicked),
   );
 
+  const isPresenter = currentUser?.presenter;
   useEffect(() => {
-    setShowPresenterView(currentUser?.presenter && !currentPickedUser);
-  }, [currentUser, currentPickedUser]);
+    setShowPresenterView(isPresenter && !currentPickedUser);
+  }, [isPresenter, currentPickedUser]);
 
   const { remainingSeconds, canClose } = usePreventCloseModalCountdown(
     currentUser,
@@ -110,10 +110,9 @@ export function PickUserModal(props: PickUserModalProps) {
               {...{
                 intl,
                 deletionFunction,
-                handlePickRandomUser,
                 dataChannelPickedUsers,
+                pluginApi,
                 pickedUserWithEntryId: currentPickedUser,
-                users,
               }}
             />
           ) : (

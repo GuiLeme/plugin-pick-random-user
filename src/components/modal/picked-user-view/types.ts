@@ -9,7 +9,7 @@ import { PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../../pic
 
 export interface PickedUserViewComponentProps {
     intl: IntlShape;
-    pickedUserWithEntryId: PickedUserWithEntryId;
+    pickedUserWithEntryId: PickedUserWithEntryId | null;
     currentUser: CurrentUserData;
     pickedUserSeenEntries: GraphqlResponseWrapper<
         DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
