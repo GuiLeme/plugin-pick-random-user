@@ -3,7 +3,7 @@ import {
   PickedUser,
 } from '../../pick-random-user/types';
 import { Role } from '../../pick-random-user/enums';
-import { FilterOptionsType } from './types';
+import { FilterOptionsType } from '../types';
 
 export const filterPossibleUsersToBePicked = (
   allUsers: UsersBasicInfoResponseFromGraphqlWrapper | undefined,

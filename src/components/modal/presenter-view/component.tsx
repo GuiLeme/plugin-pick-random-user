@@ -6,7 +6,7 @@ import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
-import { useGetFilterOptions, useGetPickRandomUserFunction, useGetPossibleUsersToBePicked } from './hooks';
+import { useGetPickRandomUserFunction, useGetPossibleUsersToBePicked } from './hooks';
 
 const intlMessages = defineMessages({
   filterChipsLabel: {
@@ -179,22 +179,17 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     dataChannelPickedUsers,
     pickedUserWithEntryId,
     pluginApi,
+    filterOptions,
+    setFilterOptions,
   } = props;
 
-  const currentUserInfo = pluginApi.useCurrentUser();
-  const { data: currentUser } = currentUserInfo;
-
-  const [{
+  const {
     includeModerators,
     includePresenter,
     includePickedUsers,
-  }, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter);
+  } = filterOptions;
 
-  const usersToBePicked = useGetPossibleUsersToBePicked(pluginApi, {
-    includeModerators,
-    includePresenter,
-    includePickedUsers,
-  });
+  const usersToBePicked = useGetPossibleUsersToBePicked(pluginApi, filterOptions);
 
   const handlePickRandomUser = useGetPickRandomUserFunction(pluginApi, usersToBePicked);
 

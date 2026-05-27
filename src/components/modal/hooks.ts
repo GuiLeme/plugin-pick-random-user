@@ -1,12 +1,22 @@
 import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import { CurrentUserData, DataChannelEntryResponseType, GraphqlResponseWrapper } from 'bigbluebutton-html-plugin-sdk';
+import {
+  CurrentUserData,
+  DataChannelEntryResponseType,
+  DataChannelTypes,
+  GraphqlResponseWrapper,
+  PluginApi,
+  PushEntryFunction,
+} from 'bigbluebutton-html-plugin-sdk';
 import { PickedUserSeenEntryDataChannel, PickedUserWithEntryId } from '../pick-random-user/types';
 import { PickRandomUserSettings } from '../../commons/types';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
 import { usePreviousValue } from '../../commons/hooks';
 import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
+import {
+  FilterOptionsType,
+} from './types';
 
 const UPDATE_COUNTDOWN_RATE = 100; // milliseconds
 const COUNTDOWN_RATE_IN_SECONDS = UPDATE_COUNTDOWN_RATE / 1000;
@@ -28,7 +38,7 @@ export const useObserveForNotification = (
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
-  currentPickedUser: PickedUserWithEntryId,
+  currentPickedUser: PickedUserWithEntryId | null,
 ) => {
   const currentUserId = useCurrentUserId(currentUser);
 
@@ -154,4 +164,92 @@ export const usePreventCloseModalCountdown = (
   }, [currentUserSeenPickedUser, currentPickedUser]);
 
   return { remainingSeconds, canClose };
+};
+
+// Filter Options hooks and utilities
+const useUpdateFilterOptionsOnDataChannel = (
+  pushFilterOptionsToDataChannel: PushEntryFunction<FilterOptionsType>,
+  filterOptions: FilterOptionsType,
+  isPresenter: boolean,
+  dataChannelLoading: boolean,
+  hasDataChannelBeenApplied: boolean,
+) => {
+  useEffect(() => {
+    if (hasDataChannelBeenApplied && isPresenter && !dataChannelLoading) {
+      pushFilterOptionsToDataChannel(filterOptions);
+    }
+  }, [isPresenter, filterOptions, dataChannelLoading, hasDataChannelBeenApplied]);
+};
+
+const hasFilterOptionsChanged = (
+  currentFilterOptions: FilterOptionsType,
+  filterOptionsFromDataChannel?: FilterOptionsType,
+) => filterOptionsFromDataChannel?.includePickedUsers !== currentFilterOptions.includePickedUsers
+  || filterOptionsFromDataChannel?.includeModerators !== currentFilterOptions.includeModerators
+  || filterOptionsFromDataChannel?.includePresenter !== currentFilterOptions.includePresenter;
+
+const useObserveFilterOptionsFromDataChannel = (
+  currentFilterOptions: FilterOptionsType,
+  filterOptionsFromDataChannel: FilterOptionsType | null,
+  setFilterOptions: React.Dispatch<React.SetStateAction<FilterOptionsType>>,
+  dataChannelLoading: boolean,
+  setHasDataChannelBeenApplied: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
+  useEffect(() => {
+    if (dataChannelLoading) return;
+    setHasDataChannelBeenApplied(true);
+    if (filterOptionsFromDataChannel
+      && hasFilterOptionsChanged(currentFilterOptions, filterOptionsFromDataChannel)) {
+      setFilterOptions({
+        includePickedUsers: filterOptionsFromDataChannel.includePickedUsers,
+        includeModerators: filterOptionsFromDataChannel.includeModerators,
+        includePresenter: filterOptionsFromDataChannel.includePresenter,
+      });
+    }
+  }, [filterOptionsFromDataChannel, dataChannelLoading]);
+};
+
+const getLatestFilterOptionsFromDataChannel = (
+  filterOptionsFromDataChannelResponse: GraphqlResponseWrapper<
+    DataChannelEntryResponseType<FilterOptionsType>[]
+  >,
+) => {
+  const persistedFilterOptionsList = filterOptionsFromDataChannelResponse.data;
+  const currentFilterOptionsFromDataChannel = persistedFilterOptionsList
+    ? persistedFilterOptionsList[0]?.payloadJson : null;
+  return currentFilterOptionsFromDataChannel;
+};
+
+export const useGetFilterOptions = (
+  pluginApi: PluginApi,
+  currentUserPresenter: boolean,
+): [FilterOptionsType, React.Dispatch<React.SetStateAction<FilterOptionsType>>] => {
+  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
+    includeModerators: false,
+    includePresenter: false,
+    includePickedUsers: false,
+  });
+  const [hasDataChannelBeenApplied, setHasDataChannelBeenApplied] = useState(false);
+  const {
+    data: filterOptionsFromDataChannel,
+    pushEntry: pushFilterOptionsToDataChannel,
+  } = pluginApi.useDataChannel<FilterOptionsType>('filterOptions', DataChannelTypes.LATEST_ITEM);
+  const latestFilterOptionFromDataChannel = getLatestFilterOptionsFromDataChannel(
+    filterOptionsFromDataChannel,
+  );
+  useObserveFilterOptionsFromDataChannel(
+    filterOptions,
+    latestFilterOptionFromDataChannel,
+    setFilterOptions,
+    filterOptionsFromDataChannel.loading,
+    setHasDataChannelBeenApplied,
+  );
+  useUpdateFilterOptionsOnDataChannel(
+    pushFilterOptionsToDataChannel,
+    filterOptions,
+    currentUserPresenter,
+    filterOptionsFromDataChannel.loading,
+    hasDataChannelBeenApplied,
+  );
+  return [filterOptions, setFilterOptions];
 };

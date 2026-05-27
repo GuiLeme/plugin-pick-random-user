@@ -5,7 +5,7 @@ import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
-import { useHandleCurrentUserNotification, usePreventCloseModalCountdown } from './hooks';
+import { useGetFilterOptions, useHandleCurrentUserNotification, usePreventCloseModalCountdown } from './hooks';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -40,6 +40,8 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
     uuid,
   } = props;
+
+  const [filterOptions, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter ?? false);
 
   const modalAnchor = useRef(document.getElementById(uuid));
 
@@ -109,6 +111,8 @@ export function PickUserModal(props: PickUserModalProps) {
             <PresenterViewComponent
               {...{
                 intl,
+                filterOptions,
+                setFilterOptions,
                 deletionFunction,
                 dataChannelPickedUsers,
                 pluginApi,

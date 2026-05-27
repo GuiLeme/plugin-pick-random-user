@@ -1,4 +1,9 @@
-import { CurrentUserData, DeleteEntryFunction, GraphqlResponseWrapper, PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import {
+  CurrentUserData,
+  DeleteEntryFunction,
+  GraphqlResponseWrapper,
+  PluginApi,
+} from 'bigbluebutton-html-plugin-sdk';
 import { IntlShape } from 'react-intl';
 import { DataChannelEntryResponseType, PushEntryFunction } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { PickedUser, PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../pick-random-user/types';
@@ -18,6 +23,12 @@ export interface PickUserModalProps {
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
   pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>;
+}
+
+export interface FilterOptionsType {
+  includeModerators: boolean;
+  includePresenter: boolean;
+  includePickedUsers: boolean;
 }
 
 export interface WindowClientSettings extends Window {

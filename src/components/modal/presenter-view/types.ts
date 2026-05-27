@@ -2,6 +2,7 @@ import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist
 import { DeleteEntryFunction, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { IntlShape } from 'react-intl';
 import { PickedUser, PickedUserWithEntryId } from '../../pick-random-user/types';
+import { FilterOptionsType } from '../types';
 
 export interface PresenterViewComponentProps {
     intl: IntlShape;
@@ -9,10 +10,6 @@ export interface PresenterViewComponentProps {
     dataChannelPickedUsers?: DataChannelEntryResponseType<PickedUser>[];
     pickedUserWithEntryId: PickedUserWithEntryId | null;
     pluginApi: PluginApi;
-}
-
-export interface FilterOptionsType {
-  includeModerators: boolean;
-  includePresenter: boolean;
-  includePickedUsers: boolean;
+    filterOptions: FilterOptionsType;
+    setFilterOptions: React.Dispatch<React.SetStateAction<FilterOptionsType>>;
 }
