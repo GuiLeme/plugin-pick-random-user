@@ -6,6 +6,7 @@ import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { PresenterViewComponent } from './presenter-view/component';
 import { useGetFilterOptions, useHandleCurrentUserNotification, usePreventCloseModalCountdown } from './hooks';
+import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constants';
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -32,6 +33,11 @@ const intlMessages = defineMessages({
     id: 'pickRandomUserPlugin.modal.closeDelayMessageSingular',
     description: 'Message showing countdown before modal can be closed (singular)',
     defaultMessage: 'You can close this modal in {seconds} second',
+  },
+  modalCloseDelayMessageMs: {
+    id: 'pickRandomUserPlugin.modal.closeDelayMessageMs',
+    description: 'Message showing millisecond countdown before modal can be closed',
+    defaultMessage: 'You can close this modal in {ms}ms',
   },
 });
 
@@ -72,6 +78,8 @@ export function PickUserModal(props: PickUserModalProps) {
     setShowPresenterView(isPresenter && !currentPickedUser);
   }, [isPresenter, currentPickedUser]);
 
+  const { preventCloseDelaySeconds } = pickRandomUserSettings;
+
   const { remainingSeconds, canClose } = usePreventCloseModalCountdown(
     currentUser,
     pickedUserSeenEntries,
@@ -85,7 +93,8 @@ export function PickUserModal(props: PickUserModalProps) {
 
   useEffect(() => {
     const phase = toastPhaseRef.current;
-    const show = !showPresenterView && !canClose;
+    const show = !showPresenterView && !canClose && remainingSeconds >= 0.3
+      && preventCloseDelaySeconds >= MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS;
     if (show && phase === 'hidden') {
       toastPhaseRef.current = 'visible';
       setToastRendered(true);
@@ -105,7 +114,7 @@ export function PickUserModal(props: PickUserModalProps) {
       setToastExiting(false);
     }
     return undefined;
-  }, [showPresenterView, canClose]);
+  }, [showPresenterView, canClose, remainingSeconds]);
 
   if (!showModal) return null;
 
@@ -115,12 +124,16 @@ export function PickUserModal(props: PickUserModalProps) {
     }
   };
 
-  const toastMessage = intl.formatMessage(
-    remainingSeconds === 1
-      ? intlMessages.modalCloseDelayMessageSingular
-      : intlMessages.modalCloseDelayMessage,
-    { seconds: Math.ceil(remainingSeconds) },
-  );
+  const toastMessage = remainingSeconds < 1
+    ? intl.formatMessage(intlMessages.modalCloseDelayMessageMs, {
+      ms: Math.round(remainingSeconds * 1000),
+    })
+    : intl.formatMessage(
+      Math.ceil(remainingSeconds) === 1
+        ? intlMessages.modalCloseDelayMessageSingular
+        : intlMessages.modalCloseDelayMessage,
+      { seconds: Math.ceil(remainingSeconds) },
+    );
 
   const toast = toastRendered ? (
     <Styled.FloatingToast data-test="countDownMessage" $exiting={toastExiting}>
