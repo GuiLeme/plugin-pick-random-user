@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { ModalAvatarProps } from './types';
 
 const PickedUserViewWrapper = styled.div`
   width: 100%;
@@ -30,28 +29,6 @@ const ResultSectionLabel = styled.span`
   margin: 1rem 0;
 `;
 
-const PickedUserAvatarInitials = styled.div<ModalAvatarProps>`
-  background-color: ${({ background }) => background};
-  height: 6rem;
-  width: 6rem;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 2.75rem;
-  font-weight: 400;
-  text-transform: capitalize;
-`;
-
-const PickedUserAvatarImage = styled.img`
-  height: 8rem;
-  width: 8rem;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
 
 const PickedUserName = styled.p`
   font-size: 1.875rem;
@@ -83,8 +60,7 @@ export {
   PickedUserViewBody,
   PickedUserViewFooter,
   ResultSectionLabel,
-  PickedUserAvatarInitials,
-  PickedUserAvatarImage,
+
   PickedUserName,
   BackButton,
 };

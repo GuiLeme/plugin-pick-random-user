@@ -110,27 +110,6 @@ const UserRow = styled.div`
   gap: 0.5rem;
 `;
 
-const UserAvatar = styled.div<{ $color: string }>`
-  width: 1.625rem;
-  height: 1.625rem;
-  border-radius: 50%;
-  background: ${({ $color }) => $color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: #fff;
-  flex-shrink: 0;
-`;
-
-const UserAvatarImage = styled.img`
-  width: 1.625rem;
-  height: 1.625rem;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-`;
 
 const UserNameText = styled.span`
   font-size: 0.8125rem;
@@ -274,8 +253,7 @@ export {
   CountBadge,
   UserListContainer,
   UserRow,
-  UserAvatar,
-  UserAvatarImage,
+
   UserNameText,
   RoleBadge,
   ClearAllButton,

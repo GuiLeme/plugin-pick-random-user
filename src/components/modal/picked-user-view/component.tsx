@@ -4,6 +4,7 @@ import { defineMessages } from 'react-intl';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
 import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
+import { UserAvatar } from '../user-avatar/component';
 
 const intlMessages = defineMessages({
   resultSectionLabel: {
@@ -15,11 +16,6 @@ const intlMessages = defineMessages({
     id: 'pickRandomUserPlugin.modal.pickedUserView.backButton.label',
     description: 'Label of back button in picked-user view on the modal',
     defaultMessage: 'back',
-  },
-  avatarImageAlternativeText: {
-    id: 'pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText',
-    description: 'Alternative text for avatar image',
-    defaultMessage: 'Avatar image of user {0}',
   },
 });
 
@@ -38,8 +34,6 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       setShowPresenterView(true);
     }
   };
-  const avatarUrl = pickedUserWithEntryId?.pickedUser?.avatar;
-
   useEffect(() => {
     const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
       pickedUserSeenEntries,
@@ -53,10 +47,6 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       });
     }
   }, [pickedUserWithEntryId]);
-  const avatarAltDescriptor = intl.formatMessage(intlMessages.avatarImageAlternativeText, {
-    0: pickedUserWithEntryId?.pickedUser?.name,
-  });
-
   return (
     <Styled.PickedUserViewWrapper>
       <Styled.PickedUserViewBody>
@@ -66,18 +56,10 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
         {
           (pickedUserWithEntryId) ? (
             <>
-              {avatarUrl ? (
-                <Styled.PickedUserAvatarImage
-                  alt={avatarAltDescriptor}
-                  src={avatarUrl}
-                />
-              ) : (
-                <Styled.PickedUserAvatarInitials
-                  background={pickedUserWithEntryId?.pickedUser?.color}
-                >
-                  {pickedUserWithEntryId?.pickedUser?.name.slice(0, 2)}
-                </Styled.PickedUserAvatarInitials>
-              )}
+              <UserAvatar
+                user={pickedUserWithEntryId.pickedUser}
+                size="large"
+              />
               <Styled.PickedUserName data-test="pickRandomUserPickedUserName">{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
             </>
           ) : null

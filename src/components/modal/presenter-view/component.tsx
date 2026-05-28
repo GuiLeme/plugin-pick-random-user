@@ -6,6 +6,7 @@ import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
+import { UserAvatar } from '../user-avatar/component';
 import { useGetPickRandomUserFunction, useGetPossibleUsersToBePicked } from './hooks';
 
 const intlMessages = defineMessages({
@@ -106,16 +107,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const FALLBACK_AVATAR_COLORS = ['#4E7FF8', '#2BA084', '#E07A3A', '#7B61D9', '#D4733B'];
-
-function getAvatarColorFallback(name: string): string {
-  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return FALLBACK_AVATAR_COLORS[hash % FALLBACK_AVATAR_COLORS.length];
-}
-
-function getInitials(name: string): string {
-  return name.slice(0, 2);
-}
 
 function CheckboxSquare({ active }: { active: boolean }) {
   const style: React.CSSProperties = active ? {
@@ -154,18 +145,10 @@ function makePickedUserRows(list?: DataChannelEntryResponseType<PickedUser>[]) {
     const time = new Date(u.createdAt);
     const hh = String(time.getHours()).padStart(2, '0');
     const mm = String(time.getMinutes()).padStart(2, '0');
-    const { avatar, color, name } = u.payloadJson;
-    const initials = getInitials(name);
     return (
       <Styled.PickedUserRow key={`${u.payloadJson.userId}-${time.getTime()}`}>
-        {avatar ? (
-          <Styled.UserAvatarImage src={avatar} alt={name} />
-        ) : (
-          <Styled.UserAvatar $color={color || getAvatarColorFallback(name)}>
-            {initials}
-          </Styled.UserAvatar>
-        )}
-        <Styled.UserNameText>{name}</Styled.UserNameText>
+        <UserAvatar user={u.payloadJson} size="small" />
+        <Styled.UserNameText>{u.payloadJson.name}</Styled.UserNameText>
         <Styled.PickedTimeText>{`${hh}:${mm}`}</Styled.PickedTimeText>
       </Styled.PickedUserRow>
     );
@@ -293,7 +276,6 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
           ) : (
             <Styled.UserListContainer>
               {usersToBePicked?.map((user) => {
-                const initials = getInitials(user.name);
                 let roleBadgeLabel: string | null = null;
                 if (user.role === 'MODERATOR') {
                   roleBadgeLabel = intl.formatMessage(intlMessages.moderatorRoleLabel);
@@ -302,13 +284,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
                 }
                 return (
                   <Styled.UserRow key={user.userId}>
-                    {user.avatar ? (
-                      <Styled.UserAvatarImage src={user.avatar} alt={user.name} />
-                    ) : (
-                      <Styled.UserAvatar $color={user.color || getAvatarColorFallback(user.name)}>
-                        {initials}
-                      </Styled.UserAvatar>
-                    )}
+                    <UserAvatar user={user} size="small" />
                     <Styled.UserNameText>{user.name}</Styled.UserNameText>
                     {roleBadgeLabel && (
                       <Styled.RoleBadge>{roleBadgeLabel}</Styled.RoleBadge>

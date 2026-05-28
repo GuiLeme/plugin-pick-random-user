@@ -18,7 +18,3 @@ export interface PickedUserViewComponentProps {
     remainingSeconds: number;
     canClose: boolean;
 }
-
-export interface ModalAvatarProps {
-    background: string;
-}
