@@ -11,7 +11,7 @@ const PickedUserViewBody = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 1.25rem 1rem;
+  padding: 1.2;
 `;
 
 const PickedUserViewFooter = styled.div`
@@ -78,35 +78,6 @@ const BackButton = styled.button`
   }
 `;
 
-const CountdownMessage = styled.div`
-  width: 100%;
-  text-align: center;
-  padding: 0.75rem 1rem;
-  margin-top: 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
-  color: #6c757d;
-  font-size: 0.9rem;
-  font-weight: 500;
-`;
-
-const CountdownBarContainer = styled.div`
-  width: 100%;
-  height: 0.25rem;
-  background-color: #e9ecef;
-  border-radius: 0.125rem;
-  overflow: hidden;
-`;
-
-const CountdownBar = styled.div<{ progress: number }>`
-  height: 100%;
-  background: linear-gradient(90deg, #0F70D7 0%, #0C57A7 100%);
-  width: ${({ progress }) => progress}%;
-  transition: width linear 0.1s;
-  border-radius: 0.125rem;
-`;
-
 export {
   PickedUserViewWrapper,
   PickedUserViewBody,
@@ -116,7 +87,4 @@ export {
   PickedUserAvatarImage,
   PickedUserName,
   BackButton,
-  CountdownMessage,
-  CountdownBarContainer,
-  CountdownBar,
 };

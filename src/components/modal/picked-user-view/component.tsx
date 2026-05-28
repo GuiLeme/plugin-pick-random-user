@@ -11,11 +11,6 @@ const intlMessages = defineMessages({
     description: 'Section label shown above the picked user result',
     defaultMessage: 'Result',
   },
-  currentUserPicked: {
-    id: 'pickRandomUserPlugin.modal.pickedUserView.title.currentUserPicked',
-    description: 'Title to show that current user has been picked',
-    defaultMessage: 'You have been randomly picked',
-  },
   backButtonLabel: {
     id: 'pickRandomUserPlugin.modal.pickedUserView.backButton.label',
     description: 'Label of back button in picked-user view on the modal',
@@ -25,16 +20,6 @@ const intlMessages = defineMessages({
     id: 'pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText',
     description: 'Alternative text for avatar image',
     defaultMessage: 'Avatar image of user {0}',
-  },
-  modalCloseDelayMessage: {
-    id: 'pickRandomUserPlugin.modal.closeDelayMessage',
-    description: 'Message showing countdown before modal can be closed',
-    defaultMessage: 'You can close this modal in {seconds} seconds',
-  },
-  modalCloseDelayMessageSingular: {
-    id: 'pickRandomUserPlugin.modal.closeDelayMessageSingular',
-    description: 'Message showing countdown before modal can be closed (singular)',
-    defaultMessage: 'You can close this modal in {seconds} second',
   },
 });
 
@@ -46,9 +31,6 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     setShowPresenterView,
     pickedUserSeenEntries,
     pushPickedUserSeen,
-    remainingSeconds,
-    canClose,
-    progressPercentage,
   } = props;
 
   const handleBackToPresenterView = () => {
@@ -71,7 +53,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       });
     }
   }, [pickedUserWithEntryId]);
-  const avatarAltDescriptor = intl.formatMessage(intlMessages.currentUserPicked, {
+  const avatarAltDescriptor = intl.formatMessage(intlMessages.avatarImageAlternativeText, {
     0: pickedUserWithEntryId?.pickedUser?.name,
   });
 
@@ -100,32 +82,12 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             </>
           ) : null
         }
-        {!canClose && remainingSeconds > 0 && !currentUser?.presenter && (
-          <Styled.CountdownMessage
-            data-test="countDownMessage"
-          >
-            {intl.formatMessage(
-              remainingSeconds === 1
-                ? intlMessages.modalCloseDelayMessageSingular
-                : intlMessages.modalCloseDelayMessage,
-              { seconds: Math.ceil(remainingSeconds) },
-            )}
-          </Styled.CountdownMessage>
-        )}
       </Styled.PickedUserViewBody>
       {currentUser?.presenter && (
         <Styled.PickedUserViewFooter>
           <Styled.BackButton type="button" data-test="pickRandomUserBackButton" onClick={handleBackToPresenterView}>
             {intl.formatMessage(intlMessages.backButtonLabel)}
           </Styled.BackButton>
-          {!canClose && remainingSeconds > 0 && (
-            <Styled.CountdownBarContainer>
-              <Styled.CountdownBar
-                data-test="countDownProgressBar"
-                progress={progressPercentage}
-              />
-            </Styled.CountdownBarContainer>
-          )}
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

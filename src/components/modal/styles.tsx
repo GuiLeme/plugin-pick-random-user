@@ -1,5 +1,5 @@
 import * as ReactModal from 'react-modal';
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 const PluginModal = styled(ReactModal)`
   position: relative;
@@ -78,19 +78,47 @@ const CloseButton = styled.button`
   }
 `;
 
-const CountdownMessage = styled.div`
-  width: 100%;
-  text-align: center;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+const toastSlideIn = keyframes`
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+`;
+
+const toastSlideOut = keyframes`
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+`;
+
+/* position:relative so the absolutely-positioned toast anchors to this wrapper,
+   not to the overlay. The wrapper's own height equals only the modal — no shift. */
+const ModalWithToastWrapper = styled.div`
+  position: relative;
+`;
+
+const FloatingToast = styled.div<{ $exiting: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 10px;
+  width: fit-content;
+  white-space: nowrap;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background-color: #fff;
+  border: 0.5px solid #E8EDF2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 13px;
   color: #6c757d;
-  font-size: 0.9rem;
-  font-weight: 500;
+  pointer-events: none;
+  ${({ $exiting }) => css`
+    animation: ${$exiting ? toastSlideOut : toastSlideIn} 0.35s ease forwards;
+  `}
 `;
 
 export {
-  PluginModal, ModalHeader, ModalTitle, CloseButton, CountdownMessage,
+  PluginModal, ModalHeader, ModalTitle, CloseButton, ModalWithToastWrapper, FloatingToast,
 };

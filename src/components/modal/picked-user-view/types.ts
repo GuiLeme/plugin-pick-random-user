@@ -17,7 +17,6 @@ export interface PickedUserViewComponentProps {
     setShowPresenterView: React.Dispatch<React.SetStateAction<boolean>>;
     remainingSeconds: number;
     canClose: boolean;
-    progressPercentage: number;
 }
 
 export interface ModalAvatarProps {

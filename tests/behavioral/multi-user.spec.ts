@@ -205,7 +205,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     );
   });
 
-  test('should show a countdown message only to the attendee and a countdown bar only to the presenter', async (): Promise<void> => {
+  test('should show a countdown message to both users during the prevent-close delay', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -223,13 +223,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     const presenterCountdown = modPage.getLocator(e.pickRandomUserCountDownMessage);
     await test.expect(
       presenterCountdown,
-      'presenter should NOT see the viewer-side countdown message',
-    ).toBeHidden({ timeout: ELEMENT_WAIT_TIME });
-
-    const presenterProgressBar = modPage.getLocator(e.pickRandomUserCountDownProgressBar);
-    await test.expect(
-      presenterProgressBar,
-      'presenter should see the progress countdown bar',
+      'presenter should see the countdown message during the prevent-close delay',
     ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
   });
 
