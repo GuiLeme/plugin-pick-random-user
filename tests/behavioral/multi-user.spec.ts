@@ -205,63 +205,6 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     );
   });
 
-  test('should show a countdown message only to the attendee and a countdown bar only to the presenter', async (): Promise<void> => {
-    await waitForAttendeeMeeting(attendeePage);
-    await openModal(modPage);
-    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
-    await modPage.page.click(e.pickRandomUserPickButton);
-
-    await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter view should open', ELEMENT_WAIT_LONGER_TIME);
-    await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee view should open', ELEMENT_WAIT_LONGER_TIME);
-
-    const attendeeCountdown = attendeePage.getLocator(e.pickRandomUserCountDownMessage);
-    await test.expect(
-      attendeeCountdown,
-      'attendee should see the countdown message during the prevent-close delay',
-    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
-
-    const presenterCountdown = modPage.getLocator(e.pickRandomUserCountDownMessage);
-    await test.expect(
-      presenterCountdown,
-      'presenter should NOT see the viewer-side countdown message',
-    ).toBeHidden({ timeout: ELEMENT_WAIT_TIME });
-
-    const presenterProgressBar = modPage.getLocator(e.pickRandomUserCountDownProgressBar);
-    await test.expect(
-      presenterProgressBar,
-      'presenter should see the progress countdown bar',
-    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
-  });
-
-  test('should not close the picked attendee modal when clicking the overlay during the countdown lock period', async (): Promise<void> => {
-    await waitForAttendeeMeeting(attendeePage);
-    await openModal(modPage);
-    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
-
-    // Pick the attendee – the countdown lock starts on the attendee side immediately.
-    await modPage.page.click(e.pickRandomUserPickButton);
-
-    // Wait for the attendee's modal to open via data-channel sync.
-    await attendeePage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
-      'attendee modal should open after being picked',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
-
-    // Click the modal overlay at the top-left corner (well outside the centred modal
-    // content) while the countdown is still active (shouldCloseOnOverlayClick === false).
-    await attendeePage.page.locator(e.pickRandomUserModalOverlay).click({
-      position: { x: 5, y: 5 },
-      force: true,
-    });
-
-    // The modal must still be open – the overlay click should have been swallowed.
-    await test.expect(
-      attendeePage.getLocator(e.pickRandomUserPickedUserViewTitle),
-      'modal should remain open after clicking the overlay during the countdown lock period',
-    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
-  });
-
   test('should keep the previously-picked viewer in the available pool and re-pick the same user when "include already picked users" is enabled and the presenter navigates back', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openModal(modPage);
@@ -360,5 +303,152 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
       'Display last randomly picked user',
       'plugin option should read "Display last randomly picked user" for the attendee',
     );
+  });
+});
+
+// ── Countdown / close-prevention tests ────────────────────────────────────────
+// These tests require preventCloseDelaySeconds to exceed the source-code threshold
+// (MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS = 2 s) so the countdown toast appears,
+// and to be long enough that the countdown is still active after the data-channel
+// sync delay.  The setting is injected at meeting-creation time via a
+// clientSettingsOverride JSON hosted at a publicly reachable URL (set via env var).
+//
+// NOTE: the BBB server must be able to fetch PREVENT_CLOSE_DELAY_SETTINGS_URL.
+// A URL pointing to a private/Docker IP will be rejected by BBB's URL validator.
+// Use a public gist (or any public HTTPS host) and set PREVENT_CLOSE_DELAY_SETTINGS_URL
+// in .env.  Until then these tests are marked fixme and skipped.
+test.describe('Pick Random User Plugin - Behavioural (countdown and close-prevention, multi-user)', () => {
+  test.describe.configure({ mode: ISOLATED ? 'default' : 'serial' });
+
+  const SETTINGS_OVERRIDE_URL = process.env.PREVENT_CLOSE_DELAY_SETTINGS_URL ?? '';
+
+  let modPage: Page;
+  let attendeePage: Page;
+  let modContext: BrowserContext;
+  let attendeeContext: BrowserContext;
+
+  async function setupMeeting(browser: Browser, request: APIRequestContext, testInfo: TestInfo) {
+    await checkPluginAvailability({
+      pluginName: PLUGIN_NAME,
+      envVarName: ENV_VAR_NAME,
+      setPluginUrl,
+      getPluginUrl,
+    })({ request }, testInfo);
+
+    const resolvedUrl = getPluginUrl();
+    if (!resolvedUrl) return;
+
+    const pluginManifestsParam = encodeCustomParams(
+      `pluginManifests=${JSON.stringify([{ url: resolvedUrl }])}`,
+    );
+    const createParameter = SETTINGS_OVERRIDE_URL
+      ? `${pluginManifestsParam}&clientSettingsOverrideJsonUrl=${encodeURIComponent(SETTINGS_OVERRIDE_URL)}`
+      : pluginManifestsParam;
+
+    modContext = await browser.newContext({
+      permissions: ['clipboard-read', 'clipboard-write', 'camera', 'microphone'],
+      viewport: { width: 1280, height: 720 },
+    });
+    const modRawPage = await modContext.newPage();
+    const sample = new Plugin({ browser, context: modContext });
+    await sample.initModPage(modRawPage, { createParameter });
+    modPage = sample.modPage;
+
+    attendeeContext = await browser.newContext({
+      permissions: ['clipboard-read', 'clipboard-write', 'camera', 'microphone'],
+      viewport: { width: 1280, height: 720 },
+    });
+    const attendeeRawPage = await attendeeContext.newPage();
+    attendeePage = new Page({ browser, page: attendeeRawPage });
+
+    const joinUrl = getJoinURL({
+      meetingID: modPage.meetingId,
+      isModerator: false,
+      skipSessionDetailsModal: true,
+    });
+    await attendeeRawPage.goto(joinUrl);
+    await attendeeRawPage.waitForSelector('div#layout', { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    attendeePage.settings = await generateSettingsData(attendeeRawPage);
+    if (attendeePage.settings?.autoJoinAudioModal) {
+      await attendeePage.closeAudioModal();
+    }
+    await attendeeRawPage.addStyleTag({
+      content: "body { font-family: 'Liberation Sans', Arial, sans-serif; }",
+    });
+    attendeePage.meetingId = modPage.meetingId;
+  }
+
+  if (ISOLATED) {
+    test.beforeEach(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterEach(async () => {
+      await modContext?.close();
+      await attendeeContext?.close();
+    });
+  } else {
+    test.beforeAll(async ({ browser, request }, testInfo) => {
+      await setupMeeting(browser, request, testInfo);
+    });
+    test.afterAll(async () => {
+      await modContext?.close();
+      await attendeeContext?.close();
+    });
+    test.afterEach(async () => {
+      if (modPage && attendeePage) await cleanupAfterTest(modPage, attendeePage);
+    });
+  }
+
+  test('should show a countdown message to both users during the prevent-close delay', async (): Promise<void> => {
+    test.skip(!SETTINGS_OVERRIDE_URL, 'Set PREVENT_CLOSE_DELAY_SETTINGS_URL in .env to enable this test');
+    await waitForAttendeeMeeting(attendeePage);
+    await openModal(modPage);
+    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
+    await modPage.page.click(e.pickRandomUserPickButton);
+
+    await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter view should open', ELEMENT_WAIT_LONGER_TIME);
+    await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee view should open', ELEMENT_WAIT_LONGER_TIME);
+
+    const attendeeCountdown = attendeePage.getLocator(e.pickRandomUserCountDownMessage);
+    await test.expect(
+      attendeeCountdown,
+      'attendee should see the countdown message during the prevent-close delay',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+
+    const presenterCountdown = modPage.getLocator(e.pickRandomUserCountDownMessage);
+    await test.expect(
+      presenterCountdown,
+      'presenter should see the countdown message during the prevent-close delay',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+  });
+
+  test('should not close the picked attendee modal when clicking the overlay during the countdown lock period', async (): Promise<void> => {
+    test.skip(!SETTINGS_OVERRIDE_URL, 'Set PREVENT_CLOSE_DELAY_SETTINGS_URL in .env to enable this test');
+    await waitForAttendeeMeeting(attendeePage);
+    await openModal(modPage);
+    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
+
+    // Pick the attendee – the countdown lock starts on the attendee side immediately.
+    await modPage.page.click(e.pickRandomUserPickButton);
+
+    // Wait for the attendee's modal to open via data-channel sync.
+    await attendeePage.hasElement(
+      e.pickRandomUserPickedUserViewTitle,
+      'attendee modal should open after being picked',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // Click the modal overlay at the top-left corner (well outside the centred modal
+    // content) while the countdown is still active (shouldCloseOnOverlayClick === false).
+    await attendeePage.page.locator(e.pickRandomUserModalOverlay).click({
+      position: { x: 5, y: 5 },
+      force: true,
+    });
+
+    // The modal must still be open – the overlay click should have been swallowed.
+    await test.expect(
+      attendeePage.getLocator(e.pickRandomUserPickedUserViewTitle),
+      'modal should remain open after clicking the overlay during the countdown lock period',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
   });
 });

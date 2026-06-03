@@ -9,7 +9,7 @@ import { PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../../pic
 
 export interface PickedUserViewComponentProps {
     intl: IntlShape;
-    pickedUserWithEntryId: PickedUserWithEntryId;
+    pickedUserWithEntryId: PickedUserWithEntryId | null;
     currentUser: CurrentUserData;
     pickedUserSeenEntries: GraphqlResponseWrapper<
         DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
@@ -17,9 +17,4 @@ export interface PickedUserViewComponentProps {
     setShowPresenterView: React.Dispatch<React.SetStateAction<boolean>>;
     remainingSeconds: number;
     canClose: boolean;
-    progressPercentage: number;
-}
-
-export interface ModalAvatarProps {
-    background: string;
 }

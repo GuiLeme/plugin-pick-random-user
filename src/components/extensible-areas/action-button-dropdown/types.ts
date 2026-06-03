@@ -4,9 +4,9 @@ import { PickedUserWithEntryId } from '../../pick-random-user/types';
 
 export interface ActionButtonDropdownManagerProps {
     intl: IntlShape
-    currentPickedUser: PickedUserWithEntryId;
+    currentPickedUser: PickedUserWithEntryId | null;
     currentUser: CurrentUserData;
     pluginApi: PluginApi;
     setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-    currentUserInfo: GraphqlResponseWrapper<CurrentUserData>;
+    currentUserInfo?: GraphqlResponseWrapper<CurrentUserData>;
 }

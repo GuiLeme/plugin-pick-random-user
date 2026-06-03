@@ -29,5 +29,6 @@
   "pickRandomUserPlugin.modal.presenterView.availableSection.emptyState": "Nessun {0} disponibile per la selezione",
   "pickRandomUserPlugin.modal.presenterView.previouslyPickedSection.emptyState": "Nessun utente selezionato ancora",
   "pickRandomUserPlugin.modal.presenterView.roleLabel.moderator": "moderatore",
-  "pickRandomUserPlugin.modal.presenterView.roleLabel.presenter": "presentatore"
+  "pickRandomUserPlugin.modal.presenterView.roleLabel.presenter": "presentatore",
+  "pickRandomUserPlugin.modal.closeDelayMessageMs": "Puoi chiudere questa finestra in {ms}ms"
 }

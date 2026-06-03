@@ -22,9 +22,3 @@ export interface PickedUserSeenEntryDataChannel {
     pickedUserId: string;
     seenByUserId: string;
 }
-
-export interface FilterOptionsType {
-  includeModerators: boolean;
-  includePresenter: boolean;
-  includePickedUsers: boolean;
-}

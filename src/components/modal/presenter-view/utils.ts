@@ -1,9 +1,9 @@
 import { DataChannelEntryResponseType, UsersBasicInfoResponseFromGraphqlWrapper } from 'bigbluebutton-html-plugin-sdk';
 import {
-  FilterOptionsType,
   PickedUser,
-} from './types';
-import { Role } from './enums';
+} from '../../pick-random-user/types';
+import { Role } from '../../pick-random-user/enums';
+import { FilterOptionsType } from '../types';
 
 export const filterPossibleUsersToBePicked = (
   allUsers: UsersBasicInfoResponseFromGraphqlWrapper | undefined,

@@ -13,11 +13,11 @@ export const hasCurrentUserSeenPickedUser = (
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
   currentUserId: string,
-  pickedUserId: string,
-) => pickedUserSeenEntries?.data
+  pickedUserId?: string,
+) => !!(pickedUserSeenEntries?.data
   && pickedUserSeenEntries?.data.length > 0
   && pickedUserSeenEntries.data.some((view) => view.payloadJson
     && view.payloadJson.seenByUserId === currentUserId
-    && view.payloadJson.pickedUserId === pickedUserId);
+    && view.payloadJson.pickedUserId === pickedUserId));
 
 export const isNumber = (obj: unknown): boolean => obj && typeof obj && !Number.isNaN(obj);

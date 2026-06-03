@@ -110,28 +110,6 @@ const UserRow = styled.div`
   gap: 0.5rem;
 `;
 
-const UserAvatar = styled.div<{ $color: string }>`
-  width: 1.625rem;
-  height: 1.625rem;
-  border-radius: 50%;
-  background: ${({ $color }) => $color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: #fff;
-  flex-shrink: 0;
-`;
-
-const UserAvatarImage = styled.img`
-  width: 1.625rem;
-  height: 1.625rem;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-`;
-
 const UserNameText = styled.span`
   font-size: 0.8125rem;
   color: #1C2B3A;
@@ -182,30 +160,7 @@ const EmptyStateText = styled.span`
   color: #A7B3C3;
 `;
 
-const PickedUserListContainer = styled.div`
-  background: #F7F9FB;
-  border-radius: 0.375rem;
-  padding: 0.625rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 999px;
-  }
-  &::-webkit-scrollbar-button {
-    display: none;
-  }
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+const PickedUserListContainer = styled(UserListContainer)`
 `;
 
 // <ul> that test selectors target with [data-test="pickRandomUserPreviouslyPickedList"]
@@ -297,8 +252,7 @@ export {
   CountBadge,
   UserListContainer,
   UserRow,
-  UserAvatar,
-  UserAvatarImage,
+
   UserNameText,
   RoleBadge,
   ClearAllButton,
