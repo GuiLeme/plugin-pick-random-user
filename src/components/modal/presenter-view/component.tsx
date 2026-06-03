@@ -107,7 +107,6 @@ const intlMessages = defineMessages({
   },
 });
 
-
 function CheckboxSquare({ active }: { active: boolean }) {
   const style: React.CSSProperties = active ? {
     width: '0.875rem',

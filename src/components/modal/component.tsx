@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import * as React from 'react';
 import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
@@ -41,6 +43,25 @@ const intlMessages = defineMessages({
   },
 });
 
+function OverlayWithToast({
+  overlayProps,
+  contentEl,
+  toast,
+}: {
+  overlayProps: React.ComponentPropsWithRef<'div'>;
+  contentEl: React.ReactElement;
+  toast: React.ReactNode;
+}) {
+  return (
+    <div {...overlayProps}>
+      <Styled.ModalWithToastWrapper>
+        {contentEl}
+        {toast}
+      </Styled.ModalWithToastWrapper>
+    </div>
+  );
+}
+
 export function PickUserModal(props: PickUserModalProps) {
   const {
     pickRandomUserSettings,
@@ -57,7 +78,10 @@ export function PickUserModal(props: PickUserModalProps) {
     uuid,
   } = props;
 
-  const [filterOptions, setFilterOptions] = useGetFilterOptions(pluginApi, currentUser?.presenter ?? false);
+  const [filterOptions, setFilterOptions] = useGetFilterOptions(
+    pluginApi,
+    currentUser?.presenter ?? false,
+  );
 
   const modalAnchor = useRef(document.getElementById(uuid));
 
@@ -116,14 +140,6 @@ export function PickUserModal(props: PickUserModalProps) {
     return undefined;
   }, [showPresenterView, canClose, remainingSeconds]);
 
-  if (!showModal) return null;
-
-  const handleCloseAttempt = () => {
-    if (canClose) {
-      handleCloseModal();
-    }
-  };
-
   const toastMessage = remainingSeconds < 1
     ? intl.formatMessage(intlMessages.modalCloseDelayMessageMs, {
       ms: Math.round(remainingSeconds * 1000),
@@ -156,6 +172,24 @@ export function PickUserModal(props: PickUserModalProps) {
     </Styled.FloatingToast>
   ) : null;
 
+  const renderOverlay = useCallback(
+    (
+      overlayProps: React.ComponentPropsWithRef<'div'>,
+      contentEl: React.ReactElement,
+    ) => (
+      <OverlayWithToast overlayProps={overlayProps} contentEl={contentEl} toast={toast} />
+    ),
+    [toast],
+  );
+
+  if (!showModal) return null;
+
+  const handleCloseAttempt = () => {
+    if (canClose) {
+      handleCloseModal();
+    }
+  };
+
   return (
     <Styled.PluginModal
       overlayClassName="modalOverlay"
@@ -166,17 +200,7 @@ export function PickUserModal(props: PickUserModalProps) {
       onRequestClose={handleCloseAttempt}
       shouldCloseOnOverlayClick={canClose}
       shouldCloseOnEsc={canClose}
-      overlayElement={(
-        overlayProps: React.ComponentPropsWithRef<'div'>,
-        contentEl: React.ReactElement,
-      ) => (
-        <div {...overlayProps}>
-          <Styled.ModalWithToastWrapper>
-            {contentEl}
-            {toast}
-          </Styled.ModalWithToastWrapper>
-        </div>
-      )}
+      overlayElement={renderOverlay}
     >
       <Styled.ModalHeader>
         <Styled.ModalTitle>

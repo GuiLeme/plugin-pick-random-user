@@ -29,7 +29,6 @@ const ResultSectionLabel = styled.span`
   margin: 1rem 0;
 `;
 
-
 const PickedUserName = styled.p`
   font-size: 1.875rem;
   font-weight: 500;

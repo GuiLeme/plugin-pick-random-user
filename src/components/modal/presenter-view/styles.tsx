@@ -110,7 +110,6 @@ const UserRow = styled.div`
   gap: 0.5rem;
 `;
 
-
 const UserNameText = styled.span`
   font-size: 0.8125rem;
   color: #1C2B3A;
