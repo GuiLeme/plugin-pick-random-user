@@ -32,5 +32,6 @@
   "pickRandomUserPlugin.modal.presenterView.roleLabel.moderator": "moderator",
   "pickRandomUserPlugin.modal.presenterView.roleLabel.presenter": "presenter",
   "pickRandomUserPlugin.modal.closeDelayMessage": "You can close this modal in {seconds} seconds",
-  "pickRandomUserPlugin.modal.closeDelayMessageSingular": "You can close this modal in {seconds} second"
+  "pickRandomUserPlugin.modal.closeDelayMessageSingular": "You can close this modal in {seconds} second",
+  "pickRandomUserPlugin.modal.closeDelayMessageMs": "You can close this modal in {ms}ms"
 }

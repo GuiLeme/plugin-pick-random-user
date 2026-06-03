@@ -26,7 +26,15 @@ export function UserAvatar({ user, size }: UserAvatarProps) {
   const isModerator = user.role === 'MODERATOR';
 
   if (user.avatar) {
-    return <Styled.AvatarImage src={user.avatar} alt={user.name} $size={size} $isModerator={isModerator} $color={color} />;
+    return (
+      <Styled.AvatarImage
+        src={user.avatar}
+        alt={user.name}
+        $size={size}
+        $isModerator={isModerator}
+        $color={color}
+      />
+    );
   }
   return (
     <Styled.AvatarInitials $size={size} $color={color} $isModerator={isModerator}>

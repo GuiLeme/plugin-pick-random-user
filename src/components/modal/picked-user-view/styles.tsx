@@ -10,7 +10,7 @@ const PickedUserViewBody = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.2;
+  padding: 1.2rem;
 `;
 
 const PickedUserViewFooter = styled.div`
