@@ -1,10 +1,10 @@
 Source: bbb-plugin-pick-random-user
 Section: web
 Priority: extra
-Maintainer: Anton Georgiev <anton.georgiev@blindsidenetworks.com>
+Maintainer: Firstname Lastname <first.last@company.com>
 Build-Depends: debhelper (>= 13), nodejs (>= 18)
 Standards-Version: 4.1.4
-Homepage: https://github.com/bigbluebutton/bbb-plugin-pick-random-user
+Homepage: https://github.com/bigbluebutton/bbb-bbb-plugin-pick-random-user
 
 Package: bbb-plugin-pick-random-user
 Architecture: all
