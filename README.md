@@ -27,6 +27,22 @@ pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
 Or additionally, you can add this same configuration in the `.properties` file from `bbb-web` in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`
 
 
+## Setting the Plugin manifest Version
+
+To set or update the `version` field in `manifest.json`, run:
+
+```bash
+npm run set-manifest:version -- <version>
+```
+
+For example:
+
+```bash
+npm run set-manifest:version -- 1.0.0
+```
+
+This will add the field if it doesn't exist yet, or overwrite it if it does.
+
 ## Development mode
 
 As for development mode (running this plugin from source), please, refer back to https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk section `Running the Plugin from Source`

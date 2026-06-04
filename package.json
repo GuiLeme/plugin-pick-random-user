@@ -5,13 +5,14 @@
   "main": "./src/index.tsx",
   "dependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.73",
+    "bigbluebutton-html-plugin-sdk": "0.0.99",
     "path": "^0.12.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.3"
   },
   "scripts": {
+    "set-manifest:version": "bash scripts/set-plugin-manifest-version-to.sh -v",
     "build-bundle": "webpack --mode production",
     "start": "webpack serve --mode development",
     "build:watch": "rm -rf dist && tsc -w --module CommonJS",
