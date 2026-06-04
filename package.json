@@ -12,7 +12,6 @@
     "styled-components": "^5.3.3"
   },
   "scripts": {
-    "set-manifest:version": "bash scripts/set-plugin-manifest-version-to.sh -v",
     "build-bundle": "webpack --mode production",
     "start": "webpack serve --mode development",
     "build:watch": "rm -rf dist && tsc -w --module CommonJS",
